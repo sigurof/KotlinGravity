@@ -1,0 +1,32 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.61'
+}
+
+group 'no.sigurof'
+version '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+}
+
+test {
+    useJUnitPlatform()
+
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "no.sigurof:grajuny:0.0.1"
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'
+}
+
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
