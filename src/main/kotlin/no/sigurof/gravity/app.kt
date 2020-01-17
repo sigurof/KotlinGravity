@@ -25,11 +25,6 @@ fun main() {
     gravity()
 }
 
-data class PositionsEnergy(
-    val positions: List<Vector3f>,
-    val energy: Float
-)
-
 /**
  * EulersMethod: Simulation
  * Verlet : Simulation
