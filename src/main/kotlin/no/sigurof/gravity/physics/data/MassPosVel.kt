@@ -1,4 +1,4 @@
-package no.sigurof.gravity
+package no.sigurof.gravity.physics.data
 
 import org.joml.Vector3f
 

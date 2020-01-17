@@ -1,8 +1,15 @@
-package no.sigurof.gravity
+package no.sigurof.gravity.physics.gravity
 
-import no.sigurof.gravity.utils.PointMass
-import no.sigurof.gravity.utils.UniqueCombinationsOfTwoUniqueUntil
-import no.sigurof.gravity.utils.operators.*
+import no.sigurof.gravity.physics.data.MassPosVel
+import no.sigurof.gravity.physics.data.PointMass
+import no.sigurof.gravity.utils.maths.combinatorics.UniqueCombinationsOfTwoUniqueUntil
+import no.sigurof.gravity.utils.operators.minus
+import no.sigurof.gravity.utils.operators.normalized
+import no.sigurof.gravity.utils.operators.plus
+import no.sigurof.gravity.utils.operators.times
+import no.sigurof.gravity.utils.randomAngle
+import no.sigurof.gravity.utils.randomDirection
+import no.sigurof.gravity.utils.randomFloatBetween
 import org.joml.Vector3f
 import kotlin.math.*
 
@@ -32,7 +39,8 @@ fun aSolarSystem(
 ): List<MassPosVel> {
     val fictSuns = mutableListOf<MassPosVel>()
     val planets = mutableListOf<MassPosVel>()
-    val sun = PointMass(msun, Vector3f(0f, 0f, 0f), Vector3f(0f, 0f, 0f))
+    val sun =
+        PointMass(msun, Vector3f(0f, 0f, 0f), Vector3f(0f, 0f, 0f))
     for ((m, t) in ms zip ts) {
         val (fictSun, planet) = restingTwoBodySystem(msun, m, g, t)
         fictSuns.add(fictSun)
@@ -123,7 +131,9 @@ fun totalEnergyOf(bodies: List<MassPosVel>, g: Float): Float {
     val totKinEnergy = bodies
         .map { kineticEnergyOf(it) }
         .sum()
-    val totPotEnergy = UniqueCombinationsOfTwoUniqueUntil(bodies.size)
+    val totPotEnergy = UniqueCombinationsOfTwoUniqueUntil(
+        bodies.size
+    )
         .map { potentialEnergyBetween(bodies[it.i], bodies[it.j], g) }
         .sum()
     return totKinEnergy + totPotEnergy
@@ -137,4 +147,9 @@ fun potentialEnergyBetween(body1: MassPosVel, body2: MassPosVel, g: Float): Floa
     return -g * body1.m * body2.m / (body1.r - body2.r).length()
 }
 
+internal fun forceBetween(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: Float): Vector3f {
+    val r12 = r2 - r1
+    val d = r12.normalized() / r12.lengthSquared()
+    return g * m1 * m2 * d
+}
 

@@ -10,9 +10,11 @@ import no.sigurof.grajuny.renderer.CommonRenderer
 import no.sigurof.grajuny.resource.ResourceManager
 import no.sigurof.grajuny.scenario.Scenario
 import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
-import no.sigurof.gravity.model.newtonian.NewtonianGravityModel
-import no.sigurof.gravity.simulation.verlet.StepsPerFrame
-import no.sigurof.gravity.simulation.verlet.Verlet
+import no.sigurof.gravity.physics.data.MassPosVel
+import no.sigurof.gravity.physics.gravity.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.NewtonianGravityModel
+import no.sigurof.gravity.simulation.euler.Euler
+import no.sigurof.gravity.simulation.settings.StepsPerFrame
 import org.joml.Vector3f
 import org.joml.Vector4f
 import kotlin.math.pow
@@ -51,14 +53,14 @@ fun gravity() {
 
     val planets = aSolarSystem(
         g,
-        10000f,
-        (0 until 20).map { Random.nextDouble(0.5, 3.0).toFloat() }.toTypedArray(),
-        (0 until 20).map { Random.nextDouble(0.5, 3.0).toFloat() }.toTypedArray(),
+        20f,
+        (0 until 3).map { Random.nextDouble(0.5, 3.0).toFloat() }.toTypedArray(),
+        (0 until 3).map { Random.nextDouble(0.5, 3.0).toFloat() }.toTypedArray(),
         origin,
         origin
     )
 
-    val positions: List<List<Vector3f>> = Verlet.simulationOf(
+    val positions: List<List<Vector3f>> = Euler.simulationOf(
         model = NewtonianGravityModel(g),
         masses = planets.map { it.m }.toTypedArray(),
         initialPositions = planets.map { it.r }.toTypedArray(),
@@ -68,7 +70,7 @@ fun gravity() {
             numFrames = numberOfFrames,
             numStepsPerFrame = stepsPerFrame
         )
-    ).iterate { r, a, t ->
+    ).iterate { r, v, a, t ->
         r
     }
 

@@ -9,15 +9,19 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
-import no.sigurof.gravity.utils.PointMass
+import no.sigurof.gravity.physics.data.MassPosVel
+import no.sigurof.gravity.physics.data.PointMass
+import no.sigurof.gravity.physics.gravity.aSolarSystem
+import no.sigurof.gravity.physics.gravity.restingTwoBodySystem
+import no.sigurof.gravity.physics.gravity.totalEnergyOf
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
-import no.sigurof.gravity.utils.operators.randomVector3f
 import no.sigurof.gravity.utils.operators.times
+import no.sigurof.gravity.utils.randomVector3f
 import org.joml.Vector3f
 import kotlin.random.Random
 
-internal class SolarSystemKtTest : StringSpec({
+internal class GravityUtilsKtTest : StringSpec({
     "aSolarSystem" should {
         val g = 9.81f
         val origin = Vector3f(0f, 0f, 0f)
@@ -40,7 +44,7 @@ internal class SolarSystemKtTest : StringSpec({
     }
 })
 
-internal class SolarSystemKtTest2 : FunSpec({
+internal class GravityUtilsKtTest2 : FunSpec({
     context("when we have the following three bodies") {
         val g = Random.nextDouble(0.1, 1000.0).toFloat()
         val ps = (0 until 3).map {

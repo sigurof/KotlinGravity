@@ -1,13 +1,13 @@
-package no.sigurof.gravity.model.newtonian
+package no.sigurof.gravity.physics.newtonian
 
 import io.kotlintest.IsolationMode
 import io.kotlintest.matchers.plusOrMinus
 import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
-import no.sigurof.gravity.numerics.eulerStepR
-import no.sigurof.gravity.numerics.eulerStepRV
-import no.sigurof.gravity.utils.operators.randomFloatBetween
+import no.sigurof.gravity.simulation.numerics.eulerStepR
+import no.sigurof.gravity.simulation.numerics.eulerStepRV
+import no.sigurof.gravity.utils.randomFloatBetween
 import org.joml.Vector3f
 
 

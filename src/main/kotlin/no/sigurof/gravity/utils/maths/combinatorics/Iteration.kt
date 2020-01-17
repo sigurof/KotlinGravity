@@ -1,4 +1,4 @@
-package no.sigurof.gravity.utils
+package no.sigurof.gravity.utils.maths.combinatorics
 
 internal class IndexPair constructor(
     val i: Int,

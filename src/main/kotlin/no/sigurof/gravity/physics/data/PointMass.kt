@@ -1,6 +1,5 @@
-package no.sigurof.gravity.utils
+package no.sigurof.gravity.physics.data
 
-import no.sigurof.gravity.MassPosVel
 import org.joml.Vector3f
 
 class PointMass(
