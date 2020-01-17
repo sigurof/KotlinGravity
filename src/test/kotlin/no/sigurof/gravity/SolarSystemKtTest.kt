@@ -9,7 +9,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
-import no.sigurof.gravity.model.newtonian.BodyState
+import no.sigurof.gravity.utils.PointMass
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.randomVector3f
@@ -18,10 +18,17 @@ import org.joml.Vector3f
 import kotlin.random.Random
 
 internal class SolarSystemKtTest : StringSpec({
-    "createSunEarthMars" should {
+    "aSolarSystem" should {
         val g = 9.81f
         val origin = Vector3f(0f, 0f, 0f)
-        val planets = getSunEarthMars(g, 1000f, 10f, 1f, 7f, 2f, origin, origin)
+        val planets = aSolarSystem(
+            g,
+            1000f,
+            (0 until 20).map { Random.nextDouble(0.5, 30.0).toFloat() }.toTypedArray(),
+            (0 until 20).map { Random.nextDouble(0.5, 30.0).toFloat() }.toTypedArray(),
+            origin,
+            origin
+        )
         "return a result where" {
             val momentum = momentumOf(planets)
             forall(
@@ -37,9 +44,8 @@ internal class SolarSystemKtTest2 : FunSpec({
     context("when we have the following three bodies") {
         val g = Random.nextDouble(0.1, 1000.0).toFloat()
         val ps = (0 until 3).map {
-            BodyState(
+            PointMass(
                 Random.nextDouble(0.1, 1000.0).toFloat(),
-                randomVector3f(),
                 randomVector3f(),
                 randomVector3f()
             )
@@ -52,7 +58,7 @@ internal class SolarSystemKtTest2 : FunSpec({
         val energy = kineticEnergy + potEnergy
 
         test("that the energy function calculates the same energy") {
-            calculateEnergy(ps, g) shouldBe (energy plusOrMinus 0.002f)
+            totalEnergyOf(ps, g) shouldBe (energy plusOrMinus 0.002f)
         }
     }
     context("when calling restingTwoBodySystem:") {
@@ -75,7 +81,7 @@ internal class SolarSystemKtTest2 : FunSpec({
             }
         }
         test("That the resulting energy is less than zero") {
-            calculateEnergy(planets, g) shouldBeLessThan 0f
+            totalEnergyOf(planets, g) shouldBeLessThan 0f
 
         }
     }

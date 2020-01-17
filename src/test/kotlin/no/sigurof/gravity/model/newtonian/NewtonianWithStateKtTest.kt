@@ -5,11 +5,13 @@ import io.kotlintest.matchers.plusOrMinus
 import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import no.sigurof.gravity.numerics.eulerStepR
+import no.sigurof.gravity.numerics.eulerStepRV
 import no.sigurof.gravity.utils.operators.randomFloatBetween
 import org.joml.Vector3f
 
 
-internal class NewtonianModelKtTest : StringSpec() {
+internal class NewtonianWithStateKtTest : StringSpec() {
     override fun isolationMode(): IsolationMode? = IsolationMode.InstancePerTest
 
     init {
@@ -23,18 +25,12 @@ internal class NewtonianModelKtTest : StringSpec() {
         val ax: Float = randomFloatBetween(-5.0, 5.0)
         val ay: Float = randomFloatBetween(-5.0, 5.0)
         val az: Float = randomFloatBetween(-5.0, 5.0)
-        val bodyState = BodyState(
-            1f,
-            Vector3f(rx, ry, rz),
-            Vector3f(vx, vy, vz),
-            Vector3f(ax, ay, az)
-        )
+        val r = Vector3f(rx, ry, rz)
+        val v = Vector3f(vx, vy, vz)
+        val a = Vector3f(ax, ay, az)
 
-
-        "newtonian step" should {
-            val newPosVel = newtonianStep(bodyState, dt)
-            val pos = newPosVel.first
-            val vel = newPosVel.second
+        "euler step of position and velocity" should {
+            val (pos, vel) = eulerStepRV(r, v, a, dt)
             "calculate next position as x0 + v0*dt + ½a0*dt²"{
                 pos.x.shouldBe(rx + vx * dt + 0.5f * ax * dt * dt plusOrMinus 0.001f)
                 pos.y.shouldBe(ry + vy * dt + 0.5f * ay * dt * dt plusOrMinus 0.001f)
@@ -47,6 +43,14 @@ internal class NewtonianModelKtTest : StringSpec() {
             }
         }
 
+        "euler step of position" should {
+            val pos = eulerStepR(r, v, a, dt)
+            "calculate next position the same way, as x0 + v0*dt + ½a0*dt²"{
+                pos.x.shouldBe(rx + vx * dt + 0.5f * ax * dt * dt plusOrMinus 0.001f)
+                pos.y.shouldBe(ry + vy * dt + 0.5f * ay * dt * dt plusOrMinus 0.001f)
+                pos.z.shouldBe(rz + vz * dt + 0.5f * az * dt * dt plusOrMinus 0.001f)
+            }
+        }
     }
 
 

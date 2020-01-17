@@ -6,51 +6,6 @@ import no.sigurof.gravity.utils.operators.*
 import org.joml.Vector3f
 import kotlin.math.*
 
-/**
- * OrbitalParameters describes the planet's mass and orbital period.
- * The orbital period t is ignored for the top level node
- * */
-class PlanetParameters(
-    val m: Float,
-    val t: Float?
-)
-
-/**
- * PlanetNode represents an orbiting body which accords to Newtonian gravity
- * It stores `self` representing its own parameters, and `satelites`, a list
- * of bodies which should orbit
- * */
-class PlanetNode(
-    val self: PlanetParameters,
-    val moons: List<PlanetNode>?
-) {
-    init {
-        if (moons == null) {
-            error("orbitalNode's properties were both null. One of them should be set.")
-        }
-    }
-}
-
-fun getSunEarthMoonOrbitalNode(): PlanetNode {
-    val moon = PlanetNode(
-        PlanetParameters(0.01f, 1f),
-        null
-    )
-    val earth = PlanetNode(
-        PlanetParameters(1f, 10f),
-        listOf(
-            moon
-        )
-    )
-    return PlanetNode(
-        PlanetParameters(1000f, null),
-        listOf(
-            earth
-        )
-    )
-}
-
-
 fun getSunEarthMoon(g: Float): List<MassPosVel> {
     val m1 = 50f
     val m21 = 50f
@@ -67,50 +22,32 @@ fun getSunEarthMoon(g: Float): List<MassPosVel> {
     return listOf(b1, b21, b22)
 }
 
-
-fun getSunEarthMars(
+fun aSolarSystem(
     g: Float,
     msun: Float,
-    mearth: Float,
-    tearth: Float,
-    mmars: Float,
-    tmars: Float,
+    ms: Array<Float>,
+    ts: Array<Float>,
     baryPos: Vector3f,
     baryVel: Vector3f
 ): List<MassPosVel> {
-    val (fictSun1, earth) = restingTwoBodySystem(msun, mearth, g, tearth)
-    val (fictSun2, mars) = restingTwoBodySystem(msun, mmars, g, tmars)
-    earth.r += baryPos
-    earth.v += baryVel
-    mars.r += baryPos
-    mars.v += baryVel
-    val sun = PointMass(
-        msun,
-        fictSun1.r + fictSun2.r + baryPos,// TODO Find out if this component can be chosen so as to preserve or minimize some property
-        fictSun1.v + fictSun2.v + baryVel // This velocity component ensures that total momentum is zero relative to the barycenter
-    )
-    return listOf(sun, earth, mars)
+    val fictSuns = mutableListOf<MassPosVel>()
+    val planets = mutableListOf<MassPosVel>()
+    val sun = PointMass(msun, Vector3f(0f, 0f, 0f), Vector3f(0f, 0f, 0f))
+    for ((m, t) in ms zip ts) {
+        val (fictSun, planet) = restingTwoBodySystem(msun, m, g, t)
+        fictSuns.add(fictSun)
+        planets.add(planet)
+        sun.r += fictSun.r
+        sun.v += fictSun.v
+    }
+    for (planet in planets) {
+        planet.r += baryPos
+        planet.v += baryVel
+    }
+    planets.add(sun)
+    return planets
 }
 
-
-fun getSunEarth(
-    g: Float,
-    msun: Float,
-    mearth: Float,
-    tearth: Float,
-    baryPos: Vector3f,
-    baryVel: Vector3f
-): List<MassPosVel> {
-    val (fictSun1, earth) = restingTwoBodySystem(msun, mearth, g, tearth)
-    earth.r += baryPos
-    earth.v += baryVel
-    val sun = PointMass(
-        msun,
-        fictSun1.r + baryPos,// TODO Find out if this component can be chosen so as to preserve or minimize some property
-        fictSun1.v + baryVel // This velocity component ensures that total momentum is zero relative to the barycenter
-    )
-    return listOf(sun, earth)
-}
 
 fun twoBodySystem(
     baryPos: Vector3f,
@@ -182,34 +119,21 @@ fun getCentralForceProblemPositionAndVelocity(
     return Pair(rVec, vVec)
 }
 
-fun calculateEnergy(bodies: List<MassPosVel>, g: Float): Float {
+fun totalEnergyOf(bodies: List<MassPosVel>, g: Float): Float {
     val totKinEnergy = bodies
-        .map { kineticEnergy(it) }
+        .map { kineticEnergyOf(it) }
         .sum()
     val totPotEnergy = UniqueCombinationsOfTwoUniqueUntil(bodies.size)
-        .map { potential(bodies[it.i], bodies[it.j], g) }
+        .map { potentialEnergyBetween(bodies[it.i], bodies[it.j], g) }
         .sum()
     return totKinEnergy + totPotEnergy
 }
 
-fun kineticEnergy(body: MassPosVel): Float {
+fun kineticEnergyOf(body: MassPosVel): Float {
     return 0.5f * body.m * body.v * body.v
 }
 
-fun calculateEnergy(b1: MassPosVel, b2: MassPosVel, g: Float): Float {
-    val distance = (b1.r - b2.r).length()
-    val m1 = b1.m
-    val m2 = b2.m
-    val v1 = b1.v
-    val v2 = b2.v
-    return 0.5f * m1 * v1.lengthSquared() + 0.5f * m2 * v2.lengthSquared() - g * m1 * m2 / distance
-}
-
-fun momentum(b: MassPosVel): Vector3f {
-    return b.m * b.v
-}
-
-fun potential(body1: MassPosVel, body2: MassPosVel, g: Float): Float {
+fun potentialEnergyBetween(body1: MassPosVel, body2: MassPosVel, g: Float): Float {
     return -g * body1.m * body2.m / (body1.r - body2.r).length()
 }
 
