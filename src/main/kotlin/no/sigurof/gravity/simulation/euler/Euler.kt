@@ -1,6 +1,7 @@
 package no.sigurof.gravity.simulation.euler
 
 
+import no.sigurof.gravity.physics.ForcePair
 import no.sigurof.gravity.physics.NonConservativeForceModel
 import no.sigurof.gravity.simulation.numerics.eulerStepRV
 import no.sigurof.gravity.simulation.settings.SimulationSettings
@@ -10,7 +11,7 @@ import org.joml.Vector3f
 object Euler {
     fun simulationOf(
         model: NonConservativeForceModel,
-        forcePairs: Array<Pair<Int, Int>>,
+        forcePairs: Array<ForcePair>,
         masses: Array<Float>,
         initialPositions: Array<Vector3f>,
         initialVelocities: Array<Vector3f>,
@@ -42,7 +43,7 @@ interface EulerSimulation {
 // TODO Add inline constructor with reified type to get the benefit of preallocation
 class Default(
     private val nonConservativeForceModel: NonConservativeForceModel,
-    private val forcePairs: Array<Pair<Int, Int>>,
+    private val forcePairs: Array<ForcePair>,
     private val masses: Array<Float>,
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
@@ -75,14 +76,14 @@ class Default(
     }
 
     private inline fun iterateBy(method: (i: Int) -> Unit) {
-        for (i in r.indices) {
+        for (i in a.indices) {
             method.invoke(i)
         }
         t += dt
         updateAcceleration()
     }
 
-    private inline fun updateAcceleration() {
+    private fun updateAcceleration() {
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }

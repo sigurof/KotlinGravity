@@ -12,13 +12,14 @@ import no.sigurof.grajuny.scenario.Scenario
 import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
+import no.sigurof.gravity.physics.experimental.EulerIntegrator
+import no.sigurof.gravity.physics.experimental.NewtonianSimulation
+import no.sigurof.gravity.physics.experimental.Simulation
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianGravityModel
 import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
 import no.sigurof.gravity.physics.gravity.newtonian.newtonianForcePairs
 import no.sigurof.gravity.physics.hookeslaw.DampedHarmonic
 import no.sigurof.gravity.physics.hookeslaw.HookesLaw
-import no.sigurof.gravity.simulation.settings.StepsPerFrame
-import no.sigurof.gravity.simulation.verlet.Verlet
 import no.sigurof.gravity.utils.operators.minus
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -45,20 +46,21 @@ fun main() {
 
 fun gravity() {
     val origin = Vector3f(0f, 0f, 0f)
-    val numberOfFrames = 10000
+    val numberOfFrames = 5000
     val g = 9.81f
     val dt = 0.01f
     val stepsPerFrame = 5
 
     val objects = aSolarSystem(
         g,
-        200f,
+        20f,
         (0 until 3).map { randomFloatBetween(0.5f, 3f) }.toTypedArray(),
-        (0 until 3).map { randomFloatBetween(0.5f, 3f) }.toTypedArray(),
+        (0 until 3).map { randomFloatBetween(1f, 8f) }.toTypedArray(),
         origin,
         origin
     )
-
+//
+///*
 /*
     val objects = listOf(
         PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
@@ -70,31 +72,78 @@ fun gravity() {
         PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin)
     )
 */
+//*/
 
     val hookesLawModel = HookesLaw(
         DampedHarmonic(
             equilibriumDistance = 5f,
             springConstant = 5f,
-            dampingTerm = 1f
+            dampingTerm = 6f
         )
     )
     val newtonianModel = NewtonianGravityModel(
         g = g
     )
 
-    val positions: List<List<Vector3f>> = Verlet.simulationOf(
-        model = newtonianModel,
-        forcePairs = newtonianForcePairs(objects.size),
-        masses = objects.map { it.m }.toTypedArray(),
-        initialPositions = objects.map { it.r }.toTypedArray(),
-        initialVelocities = objects.map { it.v }.toTypedArray(),
-        settings = StepsPerFrame(
+    /**
+     * Som jeg ser avhenger den spesifikke fysikkmodellen av forskjellige parametre.
+     * Newton avhenger kun av posisjon mens dempet oscillator avhenger av r og v.
+     * Dette ser ut til å tyde på at jeg har invertert ansvarsforholdet
+     *
+     * Å la den spesifikke modellen inneholde pos, vel og acc istedenfor algoritmen
+     * vil også gjøre at jeg ikke må sende inn akselerasjon som en output-parameter
+     * inn i modellen. Vil også gjøre at forcePairs kan sendes direkte inn der de
+     * brukes
+     *
+     *
+     *
+     * */
+
+//    val positions = DefaultSimulation(
+//        g = g,
+//        forcePairs = newtonianForcePairs(objects.size),
+//        masses = objects.map { it.m }.toTypedArray(),
+//        initialPositions = objects.map { it.r }.toTypedArray(),
+//        initialVelocities = objects.map { it.v }.toTypedArray(),
+//        settings = StepsPerFrame(
+//            dt = dt,
+//            numFrames = numberOfFrames,
+//            numStepsPerFrame = stepsPerFrame
+//        )
+//    ).iterate { r, _, _, _ ->
+//        r
+//    }
+
+
+//    val positions: List<List<Vector3f>> = Verlet.simulationOf(
+//        model = NewtonianGravityModel(g = g),
+//        forcePairs = newtonianForcePairs(objects.size),
+//        masses = objects.map { it.m }.toTypedArray(),
+//        initialPositions = objects.map { it.r }.toTypedArray(),
+//        initialVelocities = objects.map { it.v }.toTypedArray(),
+//        settings = StepsPerFrame(
+//            dt = dt,
+//            numFrames = numberOfFrames,
+//            numStepsPerFrame = stepsPerFrame
+//        )
+//    ).iterate { r, _, _ ->
+//        r
+//    }
+    val positions = Simulation(
+        integrator = EulerIntegrator(
+            masses = objects.map { it.m }.toTypedArray(),
+            forcePairs = newtonianForcePairs(objects.size),
+            initialPositions = objects.map { it.r }.toTypedArray(),
+            initialVelocities = objects.map { it.v }.toTypedArray(),
             dt = dt,
-            numFrames = numberOfFrames,
-            numStepsPerFrame = stepsPerFrame
-        )
-    ).iterate { r,  _, _ ->
-        r
+            potential = NewtonianSimulation(
+                g = g
+            )
+        ),
+        stepsPerFrame = stepsPerFrame,
+        numFrames = numberOfFrames
+    ).iterate {
+        it.pos
     }
 
     visualize(objects, positions)
@@ -150,13 +199,16 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
                 }
                 scenario.run()
                 frame = (frame + 1) % recording.size
-                val distances = mutableListOf<Float>()
-                for (i in 0 until recording[frame].size - 2) {
-                    distances.add((recording[frame][i] - recording[frame][i + 1]).length())
-                }
-                println("Distances are: $distances")
             }
         }
         scenario.cleanUp()
     }
+}
+
+fun debugDistances(positions: List<Vector3f>){
+    val distances = mutableListOf<Float>()
+    for (i in 0 until positions.size - 2) {
+        distances.add((positions[i] - positions[i + 1]).length())
+    }
+    println("$distances")
 }
