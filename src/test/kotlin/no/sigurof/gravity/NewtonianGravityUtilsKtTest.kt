@@ -11,9 +11,9 @@ import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.aSolarSystem
-import no.sigurof.gravity.physics.gravity.restingTwoBodySystem
-import no.sigurof.gravity.physics.gravity.totalEnergyOf
+import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.restingTwoBodySystem
+import no.sigurof.gravity.physics.gravity.newtonian.totalEnergyOf
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.times
@@ -21,7 +21,7 @@ import no.sigurof.gravity.utils.randomVector3f
 import org.joml.Vector3f
 import kotlin.random.Random
 
-internal class GravityUtilsKtTest : StringSpec({
+internal class NewtonianGravityUtilsKtTest : StringSpec({
     "aSolarSystem" should {
         val g = 9.81f
         val origin = Vector3f(0f, 0f, 0f)
@@ -39,12 +39,12 @@ internal class GravityUtilsKtTest : StringSpec({
                 row(momentum.x),
                 row(momentum.y),
                 row(momentum.z)
-            ) { it shouldBe (0f plusOrMinus 0.001f) }
+            ) { it shouldBe (0f plusOrMinus 0.01f) }
         }
     }
 })
 
-internal class GravityUtilsKtTest2 : FunSpec({
+internal class NewtonianGravityUtilsKtTest2 : FunSpec({
     context("when we have the following three bodies") {
         val g = Random.nextDouble(0.1, 1000.0).toFloat()
         val ps = (0 until 3).map {
@@ -62,7 +62,7 @@ internal class GravityUtilsKtTest2 : FunSpec({
         val energy = kineticEnergy + potEnergy
 
         test("that the energy function calculates the same energy") {
-            totalEnergyOf(ps, g) shouldBe (energy plusOrMinus 0.002f)
+            totalEnergyOf(ps, g) shouldBe (energy plusOrMinus 0.01f)
         }
     }
     context("when calling restingTwoBodySystem:") {
@@ -81,12 +81,11 @@ internal class GravityUtilsKtTest2 : FunSpec({
                     row(momentum.x),
                     row(momentum.y),
                     row(momentum.z)
-                ) { it shouldBe (0f plusOrMinus 0.001f) }
+                ) { it shouldBe (0f plusOrMinus 0.01f) }
             }
         }
         test("That the resulting energy is less than zero") {
             totalEnergyOf(planets, g) shouldBeLessThan 0f
-
         }
     }
 })

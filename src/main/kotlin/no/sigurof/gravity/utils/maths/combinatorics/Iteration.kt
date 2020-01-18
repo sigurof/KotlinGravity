@@ -1,17 +1,6 @@
 package no.sigurof.gravity.utils.maths.combinatorics
 
-internal class IndexPair constructor(
-    val i: Int,
-    val j: Int
-) {
-    operator fun component1(): Int {
-        return i
-    }
-
-    operator fun component2(): Int {
-        return j
-    }
-}
+typealias IndexPair = Pair<Int, Int>
 
 /**
  * This class lists the combinatoric number of (!)combinations of (!)two numbers (!)without repetition
@@ -33,6 +22,7 @@ internal class UniqueCombinationsOfTwoUniqueIterator(
 ) : Iterator<IndexPair> {
     private var i: Int = 0
     private var j: Int = 1
+
     override fun hasNext(): Boolean {
         if (this.i == this.max) {
             return false

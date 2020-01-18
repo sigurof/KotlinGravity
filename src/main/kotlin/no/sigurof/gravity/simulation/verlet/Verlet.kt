@@ -1,6 +1,7 @@
 package no.sigurof.gravity.simulation.verlet
 
-import no.sigurof.gravity.physics.Model
+import no.sigurof.gravity.physics.ConservativeForceModel
+import no.sigurof.gravity.physics.ForcePair
 import no.sigurof.gravity.simulation.numerics.eulerStepR
 import no.sigurof.gravity.simulation.numerics.verletStepR
 import no.sigurof.gravity.simulation.settings.SimulationSettings
@@ -9,7 +10,8 @@ import org.joml.Vector3f
 
 object Verlet {
     fun simulationOf(
-        model: Model,
+        model: ConservativeForceModel,
+        forcePairs: Array<ForcePair>,
         masses: Array<Float>,
         initialPositions: Array<Vector3f>,
         initialVelocities: Array<Vector3f>,
@@ -17,7 +19,8 @@ object Verlet {
     ): VerletSimulation {
         return when (settings) {
             is StepsPerFrame -> Default(
-                model = model,
+                conservativeForceModel = model,
+                forcePairs = forcePairs,
                 masses = masses,
                 initialPositions = initialPositions,
                 initialVelocities = initialVelocities,
@@ -40,7 +43,8 @@ interface VerletSimulation {
 
 // TODO Add inline constructor with reified type to get the benefit of preallocation
 class Default(
-    private val model: Model,
+    private val conservativeForceModel: ConservativeForceModel,
+    private val forcePairs: Array<ForcePair>,
     private val masses: Array<Float>,
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
@@ -63,7 +67,7 @@ class Default(
     override fun <I> iterate(transform: (r: List<Vector3f>, a: List<Vector3f>, t: Float) -> I): List<I> {
         val images = mutableListOf<I>()
 
-        model.writeAccelerations(a, r[lastPosIndex], masses)
+        updateAcceleration()
 
         images.add(transform.invoke(r[lastPosIndex].toList(), a.toList(), t))
 
@@ -90,7 +94,15 @@ class Default(
         newPosIndex = lastPosIndex
         lastPosIndex = temp
         t += dt
-        model.writeAccelerations(a, r[lastPosIndex], masses)
+        updateAcceleration()
+    }
+
+
+    private fun updateAcceleration() {
+        for (i in a.indices) {
+            a[i] = Vector3f(0f, 0f, 0f)
+        }
+        conservativeForceModel.addAccelerationContribution(a, r[lastPosIndex], masses, forcePairs)
     }
 
     private fun verlet(i: Int) {

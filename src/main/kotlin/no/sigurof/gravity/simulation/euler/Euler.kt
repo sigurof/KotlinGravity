@@ -1,7 +1,7 @@
 package no.sigurof.gravity.simulation.euler
 
 
-import no.sigurof.gravity.physics.Model
+import no.sigurof.gravity.physics.NonConservativeForceModel
 import no.sigurof.gravity.simulation.numerics.eulerStepRV
 import no.sigurof.gravity.simulation.settings.SimulationSettings
 import no.sigurof.gravity.simulation.settings.StepsPerFrame
@@ -9,7 +9,8 @@ import org.joml.Vector3f
 
 object Euler {
     fun simulationOf(
-        model: Model,
+        model: NonConservativeForceModel,
+        forcePairs: Array<Pair<Int, Int>>,
         masses: Array<Float>,
         initialPositions: Array<Vector3f>,
         initialVelocities: Array<Vector3f>,
@@ -17,7 +18,8 @@ object Euler {
     ): EulerSimulation {
         return when (settings) {
             is StepsPerFrame -> Default(
-                model = model,
+                nonConservativeForceModel = model,
+                forcePairs = forcePairs,
                 masses = masses,
                 initialPositions = initialPositions,
                 initialVelocities = initialVelocities,
@@ -32,14 +34,15 @@ object Euler {
 
 interface EulerSimulation {
     fun <I> iterate(
-        transform: (r: List<Vector3f>, v: List<Vector3f>, a: List<Vector3f>, t: Float)-> I
+        transform: (r: List<Vector3f>, v: List<Vector3f>, a: List<Vector3f>, t: Float) -> I
     ): List<I>
 }
 
 
 // TODO Add inline constructor with reified type to get the benefit of preallocation
 class Default(
-    private val model: Model,
+    private val nonConservativeForceModel: NonConservativeForceModel,
+    private val forcePairs: Array<Pair<Int, Int>>,
     private val masses: Array<Float>,
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
@@ -54,7 +57,7 @@ class Default(
     private var t = 0.0f
 
     override fun <I> iterate(transform: (r: List<Vector3f>, v: List<Vector3f>, a: List<Vector3f>, t: Float) -> I): List<I> {
-        model.writeAccelerations(a, r, masses)
+        updateAcceleration()
 
         val images = mutableListOf<I>()
         var step = stepsPerFrame
@@ -76,7 +79,14 @@ class Default(
             method.invoke(i)
         }
         t += dt
-        model.writeAccelerations(a, r, masses)
+        updateAcceleration()
+    }
+
+    private inline fun updateAcceleration() {
+        for (i in a.indices) {
+            a[i] = Vector3f(0f, 0f, 0f)
+        }
+        nonConservativeForceModel.addAccelerationContribution(a, v, r, masses, forcePairs)
     }
 
 

@@ -1,8 +1,10 @@
-package no.sigurof.gravity.physics.gravity
+package no.sigurof.gravity.physics.gravity.newtonian
 
+import no.sigurof.gravity.physics.ForcePair
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.utils.maths.combinatorics.UniqueCombinationsOfTwoUniqueUntil
+import no.sigurof.gravity.utils.maths.combinatorics.combinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.normalized
 import no.sigurof.gravity.utils.operators.plus
@@ -131,10 +133,8 @@ fun totalEnergyOf(bodies: List<MassPosVel>, g: Float): Float {
     val totKinEnergy = bodies
         .map { kineticEnergyOf(it) }
         .sum()
-    val totPotEnergy = UniqueCombinationsOfTwoUniqueUntil(
-        bodies.size
-    )
-        .map { potentialEnergyBetween(bodies[it.i], bodies[it.j], g) }
+    val totPotEnergy = UniqueCombinationsOfTwoUniqueUntil(bodies.size)
+        .map { potentialEnergyBetween(bodies[it.first], bodies[it.second], g) }
         .sum()
     return totKinEnergy + totPotEnergy
 }
@@ -153,3 +153,12 @@ internal fun forceBetween(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: F
     return g * m1 * m2 * d
 }
 
+
+internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair> {
+    val forcePairs = mutableListOf<ForcePair>()
+    for (forcePair in combinationsOfTwoUniqueUntil(numberOfObjects)){
+        forcePairs.add(forcePair)
+    }
+    return forcePairs.toTypedArray()
+
+}

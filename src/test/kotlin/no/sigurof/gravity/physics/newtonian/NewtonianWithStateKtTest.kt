@@ -32,23 +32,23 @@ internal class NewtonianWithStateKtTest : StringSpec() {
         "euler step of position and velocity" should {
             val (pos, vel) = eulerStepRV(r, v, a, dt)
             "calculate next position as x0 + v0*dt + ½a0*dt²"{
-                pos.x.shouldBe(rx + vx * dt + 0.5f * ax * dt * dt plusOrMinus 0.001f)
-                pos.y.shouldBe(ry + vy * dt + 0.5f * ay * dt * dt plusOrMinus 0.001f)
-                pos.z.shouldBe(rz + vz * dt + 0.5f * az * dt * dt plusOrMinus 0.001f)
+                pos.x.shouldBe(rx + vx * dt + 0.5f * ax * dt * dt plusOrMinus 0.01f)
+                pos.y.shouldBe(ry + vy * dt + 0.5f * ay * dt * dt plusOrMinus 0.01f)
+                pos.z.shouldBe(rz + vz * dt + 0.5f * az * dt * dt plusOrMinus 0.01f)
             }
             "calculate next velocity as v0 + a0*dt"{
-                vel.x.shouldBe(vx + ax * dt plusOrMinus 0.001f)
-                vel.y.shouldBe(vy + ay * dt plusOrMinus 0.001f)
-                vel.z.shouldBe(vz + az * dt plusOrMinus 0.001f)
+                vel.x.shouldBe(vx + ax * dt plusOrMinus 0.01f)
+                vel.y.shouldBe(vy + ay * dt plusOrMinus 0.01f)
+                vel.z.shouldBe(vz + az * dt plusOrMinus 0.01f)
             }
         }
 
         "euler step of position" should {
             val pos = eulerStepR(r, v, a, dt)
             "calculate next position the same way, as x0 + v0*dt + ½a0*dt²"{
-                pos.x.shouldBe(rx + vx * dt + 0.5f * ax * dt * dt plusOrMinus 0.001f)
-                pos.y.shouldBe(ry + vy * dt + 0.5f * ay * dt * dt plusOrMinus 0.001f)
-                pos.z.shouldBe(rz + vz * dt + 0.5f * az * dt * dt plusOrMinus 0.001f)
+                pos.x.shouldBe(rx + vx * dt + 0.5f * ax * dt * dt plusOrMinus 0.01f)
+                pos.y.shouldBe(ry + vy * dt + 0.5f * ay * dt * dt plusOrMinus 0.01f)
+                pos.z.shouldBe(rz + vz * dt + 0.5f * az * dt * dt plusOrMinus 0.01f)
             }
         }
     }

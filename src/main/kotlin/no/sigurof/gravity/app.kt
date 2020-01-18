@@ -10,15 +10,19 @@ import no.sigurof.grajuny.renderer.CommonRenderer
 import no.sigurof.grajuny.resource.ResourceManager
 import no.sigurof.grajuny.scenario.Scenario
 import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
+import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.gravity.aSolarSystem
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianGravityModel
-import no.sigurof.gravity.simulation.euler.Euler
+import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.newtonianForcePairs
+import no.sigurof.gravity.physics.hookeslaw.DampedHarmonic
+import no.sigurof.gravity.physics.hookeslaw.HookesLaw
 import no.sigurof.gravity.simulation.settings.StepsPerFrame
+import no.sigurof.gravity.simulation.verlet.Verlet
+import no.sigurof.gravity.utils.operators.minus
 import org.joml.Vector3f
 import org.joml.Vector4f
 import kotlin.math.pow
-import kotlin.random.Random
 
 
 fun main() {
@@ -41,35 +45,59 @@ fun main() {
 
 fun gravity() {
     val origin = Vector3f(0f, 0f, 0f)
-    val numberOfFrames = 1000
+    val numberOfFrames = 10000
     val g = 9.81f
-    val dt = 0.0025f
-    val stepsPerFrame = 1
+    val dt = 0.01f
+    val stepsPerFrame = 5
 
-    val planets = aSolarSystem(
+    val objects = aSolarSystem(
         g,
-        20f,
-        (0 until 3).map { Random.nextDouble(0.5, 3.0).toFloat() }.toTypedArray(),
-        (0 until 3).map { Random.nextDouble(0.5, 3.0).toFloat() }.toTypedArray(),
+        200f,
+        (0 until 3).map { randomFloatBetween(0.5f, 3f) }.toTypedArray(),
+        (0 until 3).map { randomFloatBetween(0.5f, 3f) }.toTypedArray(),
         origin,
         origin
     )
 
-    val positions: List<List<Vector3f>> = Euler.simulationOf(
-        model = NewtonianGravityModel(g),
-        masses = planets.map { it.m }.toTypedArray(),
-        initialPositions = planets.map { it.r }.toTypedArray(),
-        initialVelocities = planets.map { it.v }.toTypedArray(),
+/*
+    val objects = listOf(
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
+        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin)
+    )
+*/
+
+    val hookesLawModel = HookesLaw(
+        DampedHarmonic(
+            equilibriumDistance = 5f,
+            springConstant = 5f,
+            dampingTerm = 1f
+        )
+    )
+    val newtonianModel = NewtonianGravityModel(
+        g = g
+    )
+
+    val positions: List<List<Vector3f>> = Verlet.simulationOf(
+        model = newtonianModel,
+        forcePairs = newtonianForcePairs(objects.size),
+        masses = objects.map { it.m }.toTypedArray(),
+        initialPositions = objects.map { it.r }.toTypedArray(),
+        initialVelocities = objects.map { it.v }.toTypedArray(),
         settings = StepsPerFrame(
             dt = dt,
             numFrames = numberOfFrames,
             numStepsPerFrame = stepsPerFrame
         )
-    ).iterate { r, v, a, t ->
+    ).iterate { r,  _, _ ->
         r
     }
 
-    visualize(planets, positions)
+    visualize(objects, positions)
 }
 
 fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
@@ -122,6 +150,11 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
                 }
                 scenario.run()
                 frame = (frame + 1) % recording.size
+                val distances = mutableListOf<Float>()
+                for (i in 0 until recording[frame].size - 2) {
+                    distances.add((recording[frame][i] - recording[frame][i + 1]).length())
+                }
+                println("Distances are: $distances")
             }
         }
         scenario.cleanUp()
