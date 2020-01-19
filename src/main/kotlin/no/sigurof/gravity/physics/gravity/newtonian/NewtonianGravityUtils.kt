@@ -11,7 +11,6 @@ import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.times
 import no.sigurof.gravity.utils.randomAngle
 import no.sigurof.gravity.utils.randomDirection
-import no.sigurof.gravity.utils.randomFloatBetween
 import org.joml.Vector3f
 import kotlin.math.*
 
@@ -25,9 +24,9 @@ fun getSunEarthMoon(g: Float): List<MassPosVel> {
     val baryVel = Vector3f(0f, 0f, 0f)
 
     val m2 = m21 + m22
-    val (b1, b2) = twoBodySystem(baryPos, baryVel, m1, m2, g, t1)
+    val (b1, b2) = twoBodySystem(baryPos, baryVel, m1, m2, g, t1, 0f)
 
-    val (b21, b22) = twoBodySystem(b2.r, b2.v, m21, m22, g, t2)
+    val (b21, b22) = twoBodySystem(b2.r, b2.v, m21, m22, g, t2, 0f)
     return listOf(b1, b21, b22)
 }
 
@@ -36,6 +35,7 @@ fun aSolarSystem(
     msun: Float,
     ms: Array<Float>,
     ts: Array<Float>,
+    es: Array<Float>,
     baryPos: Vector3f,
     baryVel: Vector3f
 ): List<MassPosVel> {
@@ -43,8 +43,8 @@ fun aSolarSystem(
     val planets = mutableListOf<MassPosVel>()
     val sun =
         PointMass(msun, Vector3f(0f, 0f, 0f), Vector3f(0f, 0f, 0f))
-    for ((m, t) in ms zip ts) {
-        val (fictSun, planet) = restingTwoBodySystem(msun, m, g, t)
+    for (i in ms.indices) {
+        val (fictSun, planet) = restingTwoBodySystem(msun, ms[i], g, ts[i], es[i])
         fictSuns.add(fictSun)
         planets.add(planet)
         sun.r += fictSun.r
@@ -65,10 +65,11 @@ fun twoBodySystem(
     m1: Float,
     m2: Float,
     g: Float,
-    t: Float
+    t: Float,
+    e: Float
 ): Pair<MassPosVel, MassPosVel> {
     val mu = m1 * m2 / (m1 + m2)
-    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(g, m1, m2, t)
+    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(g, m1, m2, t, e)
 
     val r1Vec = baryPos + mu / m1 * rVec
     val v1Vec = baryVel + mu / m1 * vVec
@@ -87,10 +88,11 @@ fun restingTwoBodySystem(
     m1: Float,
     m2: Float,
     g: Float,
-    t: Float
+    t: Float,
+    e: Float
 ): Pair<MassPosVel, MassPosVel> {
     val mu = m1 * m2 / (m1 + m2)
-    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(g, m1, m2, t)
+    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(g, m1, m2, t, e)
 
     val r1Vec = mu / m1 * rVec
     val v1Vec = mu / m1 * vVec
@@ -109,14 +111,14 @@ fun getCentralForceProblemPositionAndVelocity(
     g: Float,
     m1: Float,
     m2: Float,
-    t: Float
+    t: Float,
+    e: Float
 ): Pair<Vector3f, Vector3f> {
     val mu: Float = m1 * m2 / (m1 + m2)
     val m = m1 + m2
 
     val rHat = randomDirection().normalize(Vector3f())
     val thetaHat = rHat.cross(randomDirection(), Vector3f()).normalize(Vector3f())
-    val e = randomFloatBetween(0.2, 0.8)
     val theta = randomAngle()
 
     val gamma = g * m1 * m2
@@ -156,7 +158,7 @@ internal fun forceBetween(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: F
 
 internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair> {
     val forcePairs = mutableListOf<ForcePair>()
-    for (forcePair in combinationsOfTwoUniqueUntil(numberOfObjects)){
+    for (forcePair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
         forcePairs.add(forcePair)
     }
     return forcePairs.toTypedArray()

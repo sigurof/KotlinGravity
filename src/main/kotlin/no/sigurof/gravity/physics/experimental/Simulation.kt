@@ -3,19 +3,20 @@ package no.sigurof.gravity.physics.experimental
 class Simulation<T>(
     private val integrator: Integrator<T>,
     private val stepsPerFrame: Int,
-    private val numFrames: Int
+    private val numFrames: Int,
+    private val potential: Potential
 ) {
 
     fun <I> iterate(transform: (integrator: T) -> I): List<I> {
         val images = mutableListOf<I>()
-        integrator.updateAcceleration()
+        updateAcceleration()
 
         var step = stepsPerFrame
         var frame = 0
         while (frame < numFrames) {
             while (step < stepsPerFrame) {
                 integrator.step()
-                integrator.updateAcceleration()
+                updateAcceleration()
                 step += 1
             }
             images.add(transform.invoke(integrator.getState()))
@@ -23,6 +24,11 @@ class Simulation<T>(
             frame += 1
         }
         return images
+    }
+
+    private fun updateAcceleration(){
+        integrator.zeroOutAcceleration()
+        potential.updateAcc(integrator)
     }
 
 }

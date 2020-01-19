@@ -1,3 +1,7 @@
 package no.sigurof.gravity.physics.experimental
 
-interface Potential
+interface Potential {
+    fun <T> updateAcc(integrator: Integrator<T>)
+}
+
+

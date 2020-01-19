@@ -10,17 +10,16 @@ import no.sigurof.grajuny.renderer.CommonRenderer
 import no.sigurof.grajuny.resource.ResourceManager
 import no.sigurof.grajuny.scenario.Scenario
 import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
+import no.sigurof.grajuny.utils.randomDirection
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.experimental.EulerIntegrator
-import no.sigurof.gravity.physics.experimental.NewtonianSimulation
-import no.sigurof.gravity.physics.experimental.Simulation
-import no.sigurof.gravity.physics.gravity.newtonian.NewtonianGravityModel
+import no.sigurof.gravity.physics.data.PointMass
+import no.sigurof.gravity.physics.experimental.*
 import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
 import no.sigurof.gravity.physics.gravity.newtonian.newtonianForcePairs
-import no.sigurof.gravity.physics.hookeslaw.DampedHarmonic
-import no.sigurof.gravity.physics.hookeslaw.HookesLaw
+import no.sigurof.gravity.physics.hookeslaw.ringStrandOneInMiddle
 import no.sigurof.gravity.utils.operators.minus
+import no.sigurof.gravity.utils.operators.times
 import org.joml.Vector3f
 import org.joml.Vector4f
 import kotlin.math.pow
@@ -45,101 +44,58 @@ fun main() {
 
 
 fun gravity() {
-    val origin = Vector3f(0f, 0f, 0f)
+    val originPos = Vector3f(0f, 0f, 0f)
+    val originVel = Vector3f(0f, 0f, 0f)
     val numberOfFrames = 5000
     val g = 9.81f
     val dt = 0.01f
-    val stepsPerFrame = 5
+    val stepsPerFrame = 1
 
-    val objects = aSolarSystem(
-        g,
-        20f,
-        (0 until 3).map { randomFloatBetween(0.5f, 3f) }.toTypedArray(),
-        (0 until 3).map { randomFloatBetween(1f, 8f) }.toTypedArray(),
-        origin,
-        origin
+    val numObjects = 200
+    val mass = Pair(1f, 20f)
+    val time = Pair(1f, 20f)
+    val ecc = Pair(0f, 0.8f)
+    val msun = 20000f
+    val objects2 = aSolarSystem(
+        g = g,
+        msun = msun,
+        ms = (0 until numObjects).map { randomFloatBetween(mass.first, mass.second) }.toTypedArray(),
+        ts = (0 until numObjects).map { randomFloatBetween(time.first, time.second) }.toTypedArray(),
+        es = (0 until numObjects).map { randomFloatBetween(ecc.first, ecc.second) }.toTypedArray(),
+        baryPos = originPos,
+        baryVel = originVel
     )
-//
-///*
-/*
-    val objects = listOf(
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin),
-        PointMass(10f, randomDirection() * randomFloatBetween(0.0f, 5f), origin)
-    )
-*/
-//*/
 
-    val hookesLawModel = HookesLaw(
-        DampedHarmonic(
-            equilibriumDistance = 5f,
-            springConstant = 5f,
-            dampingTerm = 6f
+    val objects = (0 until numObjects).map {
+        PointMass(
+            1f, randomDirection() * randomFloatBetween(4f, 6f), originVel
         )
+    }
+
+
+    val newtonianPotential = NewtonianPotential(
+        g = g,
+        forcePairs = newtonianForcePairs(objects.size)
     )
-    val newtonianModel = NewtonianGravityModel(
-        g = g
+
+
+    val harmonicPotential = HarmonicPotential(
+        harmonicOscillation = DampedHarmonic(
+            10f,
+            20f,
+            0.5f
+        ),
+        forcePairs = ringStrandOneInMiddle(objects.size)
     )
 
-    /**
-     * Som jeg ser avhenger den spesifikke fysikkmodellen av forskjellige parametre.
-     * Newton avhenger kun av posisjon mens dempet oscillator avhenger av r og v.
-     * Dette ser ut til å tyde på at jeg har invertert ansvarsforholdet
-     *
-     * Å la den spesifikke modellen inneholde pos, vel og acc istedenfor algoritmen
-     * vil også gjøre at jeg ikke må sende inn akselerasjon som en output-parameter
-     * inn i modellen. Vil også gjøre at forcePairs kan sendes direkte inn der de
-     * brukes
-     *
-     *
-     *
-     * */
-
-//    val positions = DefaultSimulation(
-//        g = g,
-//        forcePairs = newtonianForcePairs(objects.size),
-//        masses = objects.map { it.m }.toTypedArray(),
-//        initialPositions = objects.map { it.r }.toTypedArray(),
-//        initialVelocities = objects.map { it.v }.toTypedArray(),
-//        settings = StepsPerFrame(
-//            dt = dt,
-//            numFrames = numberOfFrames,
-//            numStepsPerFrame = stepsPerFrame
-//        )
-//    ).iterate { r, _, _, _ ->
-//        r
-//    }
-
-
-//    val positions: List<List<Vector3f>> = Verlet.simulationOf(
-//        model = NewtonianGravityModel(g = g),
-//        forcePairs = newtonianForcePairs(objects.size),
-//        masses = objects.map { it.m }.toTypedArray(),
-//        initialPositions = objects.map { it.r }.toTypedArray(),
-//        initialVelocities = objects.map { it.v }.toTypedArray(),
-//        settings = StepsPerFrame(
-//            dt = dt,
-//            numFrames = numberOfFrames,
-//            numStepsPerFrame = stepsPerFrame
-//        )
-//    ).iterate { r, _, _ ->
-//        r
-//    }
     val positions = Simulation(
         integrator = EulerIntegrator(
-            masses = objects.map { it.m }.toTypedArray(),
-            forcePairs = newtonianForcePairs(objects.size),
             initialPositions = objects.map { it.r }.toTypedArray(),
             initialVelocities = objects.map { it.v }.toTypedArray(),
-            dt = dt,
-            potential = NewtonianSimulation(
-                g = g
-            )
+            m = objects.map { it.m }.toTypedArray(),
+            dt = dt
         ),
+        potential = harmonicPotential,
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
     ).iterate {
@@ -159,7 +115,7 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
             .build()
         val camera = Camera.Builder()
             .at(Vector3f(10f, 10f, 10f))
-            .lookingAt(recording[0][0])
+            .lookingAt(recording[0][recording[0].size - 1])
             .withSpeed(12f)
             .build()
         val white = Vector3f(1f, 1f, 1f)
@@ -205,7 +161,7 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
     }
 }
 
-fun debugDistances(positions: List<Vector3f>){
+fun debugDistances(positions: List<Vector3f>) {
     val distances = mutableListOf<Float>()
     for (i in 0 until positions.size - 2) {
         distances.add((positions[i] - positions[i + 1]).length())

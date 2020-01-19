@@ -9,6 +9,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
+import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
@@ -23,15 +24,17 @@ import kotlin.random.Random
 
 internal class NewtonianGravityUtilsKtTest : StringSpec({
     "aSolarSystem" should {
+        val originPos = Vector3f(0f, 0f, 0f)
+        val originVel = Vector3f(0f, 0f, 0f)
         val g = 9.81f
-        val origin = Vector3f(0f, 0f, 0f)
         val planets = aSolarSystem(
             g,
             1000f,
             (0 until 20).map { Random.nextDouble(0.5, 30.0).toFloat() }.toTypedArray(),
             (0 until 20).map { Random.nextDouble(0.5, 30.0).toFloat() }.toTypedArray(),
-            origin,
-            origin
+            (0 until 20).map { randomFloatBetween(0f, 0.8f) }.toTypedArray(),
+            originPos,
+            originVel
         )
         "return a result where" {
             val momentum = momentumOf(planets)
@@ -71,7 +74,8 @@ internal class NewtonianGravityUtilsKtTest2 : FunSpec({
             Random.nextDouble(0.1, 1000.0).toFloat(),
             Random.nextDouble(0.1, 1000.0).toFloat(),
             g,
-            Random.nextDouble(0.1, 1000.0).toFloat()
+            Random.nextDouble(0.1, 1000.0).toFloat(),
+            0f
         )
         val planets = listOf(a, b)
         test("that restingTwoBodySystem returns a result where the total momentum is zero") {
