@@ -10,7 +10,7 @@ interface Integrator<T> {
     val a: Array<Vector3f>
     val t: Float
     fun step()
-    fun zeroOutAcceleration()
     fun getState(): T
+    fun updateAcceleration()
 }
 

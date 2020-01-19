@@ -23,7 +23,8 @@ class VerletIntegrator(
     override val m: Array<Float>,
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
-    private val dt: Float
+    private val dt: Float,
+    private val potentials: List<ConservativePotential>
 ) : Integrator<VerletState> {
     private val p: List<Array<Vector3f>> = listOf(
         initialPositions.copyOf(),
@@ -76,9 +77,18 @@ class VerletIntegrator(
         stepper = ::iteration
     }
 
-    override fun zeroOutAcceleration() {
+//    override fun zeroOutAcceleration() {
+//        for (i in a.indices) {
+//            a[i] = Vector3f(0f, 0f, 0f)
+//        }
+//    }
+
+    override fun updateAcceleration(){
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
+        }
+        for (potential in potentials){
+            potential.updateAcc(this)
         }
     }
 

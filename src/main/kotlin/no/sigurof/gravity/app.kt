@@ -10,53 +10,38 @@ import no.sigurof.grajuny.renderer.CommonRenderer
 import no.sigurof.grajuny.resource.ResourceManager
 import no.sigurof.grajuny.scenario.Scenario
 import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
-import no.sigurof.grajuny.utils.randomDirection
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.experimental.*
 import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
 import no.sigurof.gravity.physics.gravity.newtonian.newtonianForcePairs
-import no.sigurof.gravity.physics.hookeslaw.ringStrandOneInMiddle
+import no.sigurof.gravity.physics.hookeslaw.rectangularMesh
 import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.times
 import org.joml.Vector3f
 import org.joml.Vector4f
 import kotlin.math.pow
 
 
 fun main() {
+//    harmonic()
     gravity()
 }
 
-/**
- * EulersMethod: Simulation
- * Verlet : Simulation
- * VelocityVerlet : Simulation
- * LeapFrog : Simulation
- *
- *
- *
- * NewtonianGravity : Model
- * SchwarzhildMetric : Model
- * DoublePendulum : Model
- */
-
 
 fun gravity() {
-    val originPos = Vector3f(0f, 0f, 0f)
-    val originVel = Vector3f(0f, 0f, 0f)
+    val stepsPerFrame = 1
     val numberOfFrames = 5000
     val g = 9.81f
     val dt = 0.01f
-    val stepsPerFrame = 1
-
-    val numObjects = 200
+    val numObjects = 100
     val mass = Pair(1f, 20f)
     val time = Pair(1f, 20f)
     val ecc = Pair(0f, 0.8f)
     val msun = 20000f
-    val objects2 = aSolarSystem(
+    val originPos = Vector3f(0f, 0f, 0f)
+    val originVel = Vector3f(0f, 0f, 0f)
+    val objects = aSolarSystem(
         g = g,
         msun = msun,
         ms = (0 until numObjects).map { randomFloatBetween(mass.first, mass.second) }.toTypedArray(),
@@ -65,43 +50,65 @@ fun gravity() {
         baryPos = originPos,
         baryVel = originVel
     )
-
-    val objects = (0 until numObjects).map {
-        PointMass(
-            1f, randomDirection() * randomFloatBetween(4f, 6f), originVel
-        )
-    }
-
-
     val newtonianPotential = NewtonianPotential(
         g = g,
         forcePairs = newtonianForcePairs(objects.size)
     )
-
-
-    val harmonicPotential = HarmonicPotential(
-        harmonicOscillation = DampedHarmonic(
-            10f,
-            20f,
-            0.5f
-        ),
-        forcePairs = ringStrandOneInMiddle(objects.size)
-    )
-
     val positions = Simulation(
-        integrator = EulerIntegrator(
+        integrator = VerletIntegrator(
             initialPositions = objects.map { it.r }.toTypedArray(),
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
-            dt = dt
+            dt = dt,
+            potentials = listOf(newtonianPotential)
         ),
-        potential = harmonicPotential,
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
     ).iterate {
         it.pos
     }
 
+    visualize(objects, positions)
+}
+
+
+fun harmonic() {
+    val stepsPerFrame = 1
+    val numberOfFrames = 5000
+    val dt = 0.01f
+    val originVel = Vector3f(0f, 0f, 0f)
+    val equilibriumDistance = 1f
+    val springConstant = 1f
+    val dampingTerm = 0f
+    val w = 5
+    val h = 10
+    val objects = (0 until w * h).map {
+        val i = it % w
+        val j = (it - i) / w
+        PointMass(
+            1f, Vector3f(i.toFloat(), j.toFloat(), 0f), originVel
+        )
+    }
+    val harmonicPotential = HarmonicPotential(
+        harmonicOscillation = BasicHarmonic(
+            equilibriumDistance
+            , springConstant
+        )
+        , forcePairs = rectangularMesh(w, h, 0)
+    )
+    val positions = Simulation(
+        integrator = EulerIntegrator(
+            initialPositions = objects.map { it.r }.toTypedArray(),
+            initialVelocities = objects.map { it.v }.toTypedArray(),
+            m = objects.map { it.m }.toTypedArray(),
+            potentials = listOf(harmonicPotential),
+            dt = dt
+        ),
+        stepsPerFrame = stepsPerFrame,
+        numFrames = numberOfFrames
+    ).iterate {
+        it.pos
+    }
     visualize(objects, positions)
 }
 

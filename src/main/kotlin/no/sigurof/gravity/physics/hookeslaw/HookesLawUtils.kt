@@ -29,3 +29,51 @@ fun ringStrandOneInMiddle(numberOfObjects: Int): Array<ForcePair> {
     }
     return ring.toTypedArray()
 }
+
+fun above(index: Int, w: Int): Int? {
+    return (index - w).takeIf { it >= 0 }
+}
+
+fun below(index: Int, w: Int, length: Int): Int? {
+    return (index + w).takeIf { it < length }
+}
+
+fun right(index: Int, w: Int, length: Int): Int? {
+    return (index + 1).takeIf { it % w != 0 && it < length }
+}
+
+fun left(index: Int, w: Int): Int? {
+    return (index - 1).takeIf { it >= 0 && it % w != (w - 1) }
+}
+
+fun rectangularMesh(w: Int, h: Int, r: Int): Array<ForcePair> {
+    val length = w * h + r
+    val forcePairs = mutableListOf<ForcePair>()
+    for (i in 0 until length) {
+        listOfNotNull(
+            above(i, w),
+            below(i, w, length),
+            right(i, w, length),
+            left(i, w)
+        ).forEach {
+            forcePairs.add(ForcePair(i, it))
+        }
+    }
+    return forcePairs.toTypedArray()
+}
+
+fun meshCyclicInWidth(w: Int, h: Int, r: Int): Array<ForcePair> {
+    val length = w * h + r
+    val forcePairs = mutableListOf<ForcePair>()
+    for (i in 0 until length) {
+        listOfNotNull(
+            above(i, w),
+            below(i, w, length),
+            right(i, w, length) ?: (if (i < w * h) i + 1 - w else null),
+            left(i, w)
+        ).forEach {
+            forcePairs.add(ForcePair(i, it))
+        }
+    }
+    return forcePairs.toTypedArray()
+}

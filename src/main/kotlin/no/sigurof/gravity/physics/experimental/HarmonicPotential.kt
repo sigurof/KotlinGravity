@@ -10,7 +10,22 @@ import org.joml.Vector3f
 class HarmonicPotential(
     private val harmonicOscillation: HarmonicOscillation,
     private val forcePairs: Array<ForcePair>
-) : Potential {
+) : NonConservativePotential {
+    override fun writeToAcceleration(
+        pos: Array<Vector3f>,
+        vel: Array<Vector3f>,
+        acc: Array<Vector3f>,
+        mass: Array<Float>
+    ) {
+        for ((i, j) in forcePairs) {
+            val f = harmonicOscillation.forceOnFrom(pos[i], vel[i], pos[j], vel[j])
+            acc[i] += f
+            acc[j] -= f
+        }
+        for (i in acc.indices) {
+            acc[i] = acc[i] / mass[i]
+        }
+    }
 
     override fun <T> updateAcc(integrator: Integrator<T>) {
         for ((i, j) in forcePairs) {
