@@ -13,10 +13,15 @@ import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.experimental.*
-import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
-import no.sigurof.gravity.physics.gravity.newtonian.newtonianForcePairs
-import no.sigurof.gravity.physics.hookeslaw.rectangularMesh
+import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
+import no.sigurof.gravity.physics.gravity.newtonian.utils.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
+import no.sigurof.gravity.physics.hookeslaw.BasicHarmonic
+import no.sigurof.gravity.physics.hookeslaw.HarmonicForceLaw
+import no.sigurof.gravity.physics.hookeslaw.utils.rectangularMesh
+import no.sigurof.gravity.simulation.Simulation
+import no.sigurof.gravity.simulation.integration.euler.EulerIntegrator
+import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
 import no.sigurof.gravity.utils.operators.minus
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -34,11 +39,11 @@ fun gravity() {
     val numberOfFrames = 5000
     val g = 9.81f
     val dt = 0.01f
-    val numObjects = 100
+    val numObjects = 10
     val mass = Pair(1f, 20f)
     val time = Pair(1f, 20f)
     val ecc = Pair(0f, 0.8f)
-    val msun = 20000f
+    val msun = 200f
     val originPos = Vector3f(0f, 0f, 0f)
     val originVel = Vector3f(0f, 0f, 0f)
     val objects = aSolarSystem(
@@ -50,7 +55,7 @@ fun gravity() {
         baryPos = originPos,
         baryVel = originVel
     )
-    val newtonianPotential = NewtonianPotential(
+    val newtonianPotential = NewtonianForceLaw(
         g = g,
         forcePairs = newtonianForcePairs(objects.size)
     )
@@ -60,7 +65,7 @@ fun gravity() {
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
             dt = dt,
-            potentials = listOf(newtonianPotential)
+            forceLaws = listOf(newtonianPotential)
         ),
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
@@ -89,7 +94,7 @@ fun harmonic() {
             1f, Vector3f(i.toFloat(), j.toFloat(), 0f), originVel
         )
     }
-    val harmonicPotential = HarmonicPotential(
+    val harmonicPotential = HarmonicForceLaw(
         harmonicOscillation = BasicHarmonic(
             equilibriumDistance
             , springConstant
@@ -101,7 +106,7 @@ fun harmonic() {
             initialPositions = objects.map { it.r }.toTypedArray(),
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
-            potentials = listOf(harmonicPotential),
+            forceLaws = listOf(harmonicPotential),
             dt = dt
         ),
         stepsPerFrame = stepsPerFrame,

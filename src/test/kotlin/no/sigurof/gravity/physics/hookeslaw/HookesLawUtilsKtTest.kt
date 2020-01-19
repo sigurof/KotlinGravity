@@ -4,6 +4,10 @@ import io.kotlintest.assertSoftly
 import io.kotlintest.inspectors.forAll
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
+import no.sigurof.gravity.physics.hookeslaw.utils.above
+import no.sigurof.gravity.physics.hookeslaw.utils.below
+import no.sigurof.gravity.physics.hookeslaw.utils.left
+import no.sigurof.gravity.physics.hookeslaw.utils.right
 
 
 internal class HookesLawUtilsKtTest : FunSpec() {
@@ -22,8 +26,16 @@ internal class HookesLawUtilsKtTest : FunSpec() {
                 indices.indices.toList().forAll {
                     assertSoftly {
                         above(indices[it], width) shouldBe expectedAbove[it]
-                        below(indices[it], width, length) shouldBe expectedBelow[it]
-                        right(indices[it], width, length) shouldBe expectedRight[it]
+                        below(
+                            indices[it],
+                            width,
+                            length
+                        ) shouldBe expectedBelow[it]
+                        right(
+                            indices[it],
+                            width,
+                            length
+                        ) shouldBe expectedRight[it]
                         left(indices[it], width) shouldBe expectedLeft[it]
                     }
                 }

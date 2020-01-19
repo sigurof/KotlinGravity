@@ -1,6 +1,8 @@
-package no.sigurof.gravity.physics.experimental
+package no.sigurof.gravity.simulation.integration.euler
 
-import no.sigurof.gravity.simulation.numerics.eulerStepRV
+import no.sigurof.gravity.physics.ForceLaw
+import no.sigurof.gravity.simulation.integration.Integrator
+import no.sigurof.gravity.simulation.integration.utils.eulerStepRV
 import org.joml.Vector3f
 
 class EulerState(
@@ -14,7 +16,7 @@ class EulerIntegrator(
     override val m: Array<Float>,
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
-    private val potentials: List<Potential>,
+    private val forceLaws: List<ForceLaw>,
     private val dt: Float
 ) : Integrator<EulerState> {
     override val r: Array<Vector3f> = initialPositions.copyOf()
@@ -28,21 +30,27 @@ class EulerIntegrator(
     }
 
     override fun getState(): EulerState {
-        return EulerState(r.toList(), v.toList(), a.toList(), t)
+        return EulerState(
+            r.toList(),
+            v.toList(),
+            a.toList(),
+            t
+        )
     }
 
     override fun updateAcceleration(){
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }
-        for (potential in potentials){
+        for (potential in forceLaws){
             potential.updateAcc(this)
         }
     }
 
     private fun iteration() {
         for (i in a.indices) {
-            val posVel = eulerStepRV(r[i], v[i], a[i], dt)
+            val posVel =
+                eulerStepRV(r[i], v[i], a[i], dt)
             r[i] = posVel.first
             v[i] = posVel.second
         }

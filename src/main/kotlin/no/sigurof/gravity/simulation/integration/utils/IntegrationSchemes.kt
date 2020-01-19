@@ -1,4 +1,4 @@
-package no.sigurof.gravity.simulation.numerics
+package no.sigurof.gravity.simulation.integration.utils
 
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus

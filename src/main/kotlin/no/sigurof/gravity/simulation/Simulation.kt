@@ -1,4 +1,6 @@
-package no.sigurof.gravity.physics.experimental
+package no.sigurof.gravity.simulation
+
+import no.sigurof.gravity.simulation.integration.Integrator
 
 class Simulation<S>(
     private val integrator: Integrator<S>,

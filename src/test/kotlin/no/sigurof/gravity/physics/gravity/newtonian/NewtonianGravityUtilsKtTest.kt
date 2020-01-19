@@ -3,6 +3,7 @@ package no.sigurof.gravity.physics.gravity.newtonian
 import io.kotlintest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
 import no.sigurof.gravity.utils.maths.combinatorics.IndexPair
 
 
@@ -23,7 +24,9 @@ internal class NewtonianGravityUtilsKtTest: StringSpec(){
                 IndexPair(2, 4),
                 IndexPair(3, 4)
             )
-            for ((index, pair) in newtonianForcePairs(number).withIndex()) {
+            for ((index, pair) in newtonianForcePairs(
+                number
+            ).withIndex()) {
                 pair.shouldBeEqualToIgnoringFields(expected[index])
             }
         }

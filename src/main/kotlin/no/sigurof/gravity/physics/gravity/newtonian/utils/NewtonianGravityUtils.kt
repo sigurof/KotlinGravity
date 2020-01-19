@@ -1,8 +1,8 @@
-package no.sigurof.gravity.physics.gravity.newtonian
+package no.sigurof.gravity.physics.gravity.newtonian.utils
 
-import no.sigurof.gravity.physics.ForcePair
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
+import no.sigurof.gravity.physics.utils.ForcePair
 import no.sigurof.gravity.utils.maths.combinatorics.UniqueCombinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.maths.combinatorics.combinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.operators.minus
@@ -24,9 +24,25 @@ fun getSunEarthMoon(g: Float): List<MassPosVel> {
     val baryVel = Vector3f(0f, 0f, 0f)
 
     val m2 = m21 + m22
-    val (b1, b2) = twoBodySystem(baryPos, baryVel, m1, m2, g, t1, 0f)
+    val (b1, b2) = twoBodySystem(
+        baryPos,
+        baryVel,
+        m1,
+        m2,
+        g,
+        t1,
+        0f
+    )
 
-    val (b21, b22) = twoBodySystem(b2.r, b2.v, m21, m22, g, t2, 0f)
+    val (b21, b22) = twoBodySystem(
+        b2.r,
+        b2.v,
+        m21,
+        m22,
+        g,
+        t2,
+        0f
+    )
     return listOf(b1, b21, b22)
 }
 
@@ -44,7 +60,13 @@ fun aSolarSystem(
     val sun =
         PointMass(msun, Vector3f(0f, 0f, 0f), Vector3f(0f, 0f, 0f))
     for (i in ms.indices) {
-        val (fictSun, planet) = restingTwoBodySystem(msun, ms[i], g, ts[i], es[i])
+        val (fictSun, planet) = restingTwoBodySystem(
+            msun,
+            ms[i],
+            g,
+            ts[i],
+            es[i]
+        )
         fictSuns.add(fictSun)
         planets.add(planet)
         sun.r += fictSun.r
@@ -69,7 +91,13 @@ fun twoBodySystem(
     e: Float
 ): Pair<MassPosVel, MassPosVel> {
     val mu = m1 * m2 / (m1 + m2)
-    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(g, m1, m2, t, e)
+    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(
+        g,
+        m1,
+        m2,
+        t,
+        e
+    )
 
     val r1Vec = baryPos + mu / m1 * rVec
     val v1Vec = baryVel + mu / m1 * vVec
@@ -92,7 +120,13 @@ fun restingTwoBodySystem(
     e: Float
 ): Pair<MassPosVel, MassPosVel> {
     val mu = m1 * m2 / (m1 + m2)
-    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(g, m1, m2, t, e)
+    val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(
+        g,
+        m1,
+        m2,
+        t,
+        e
+    )
 
     val r1Vec = mu / m1 * rVec
     val v1Vec = mu / m1 * vVec
@@ -136,7 +170,13 @@ fun totalEnergyOf(bodies: List<MassPosVel>, g: Float): Float {
         .map { kineticEnergyOf(it) }
         .sum()
     val totPotEnergy = UniqueCombinationsOfTwoUniqueUntil(bodies.size)
-        .map { potentialEnergyBetween(bodies[it.first], bodies[it.second], g) }
+        .map {
+            potentialEnergyBetween(
+                bodies[it.first],
+                bodies[it.second],
+                g
+            )
+        }
         .sum()
     return totKinEnergy + totPotEnergy
 }

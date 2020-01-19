@@ -4,8 +4,11 @@ import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import no.sigurof.grajuny.utils.randomFloatBetween
-import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
-import no.sigurof.gravity.physics.gravity.newtonian.newtonianForcePairs
+import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
+import no.sigurof.gravity.physics.gravity.newtonian.utils.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
+import no.sigurof.gravity.simulation.Simulation
+import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
 import org.joml.Vector3f
 
 
@@ -32,11 +35,15 @@ internal class SimulationTest : StringSpec() {
                     initialPositions = objects.map { it.r }.toTypedArray(),
                     initialVelocities = objects.map { it.v }.toTypedArray(),
                     m = objects.map { it.m }.toTypedArray(),
+                    forceLaws = listOf(
+                        NewtonianForceLaw(
+                            g = g,
+                            forcePairs = newtonianForcePairs(
+                                objects.size
+                            )
+                        )
+                    ),
                     dt = dt
-                ),
-                potential = NewtonianPotential(
-                    g = g,
-                    forcePairs = newtonianForcePairs(objects.size)
                 ),
                 stepsPerFrame = stepsPerFrame,
                 numFrames = numberOfFrames

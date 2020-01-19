@@ -12,9 +12,9 @@ import io.kotlintest.tables.row
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.newtonian.aSolarSystem
-import no.sigurof.gravity.physics.gravity.newtonian.restingTwoBodySystem
-import no.sigurof.gravity.physics.gravity.newtonian.totalEnergyOf
+import no.sigurof.gravity.physics.gravity.newtonian.utils.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.utils.restingTwoBodySystem
+import no.sigurof.gravity.physics.gravity.newtonian.utils.totalEnergyOf
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.times
@@ -89,7 +89,10 @@ internal class NewtonianGravityUtilsKtTest2 : FunSpec({
             }
         }
         test("That the resulting energy is less than zero") {
-            totalEnergyOf(planets, g) shouldBeLessThan 0f
+            totalEnergyOf(
+                planets,
+                g
+            ) shouldBeLessThan 0f
         }
     }
 })

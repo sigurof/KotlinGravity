@@ -1,7 +1,9 @@
-package no.sigurof.gravity.physics.experimental
+package no.sigurof.gravity.simulation.integration.verlet
 
-import no.sigurof.gravity.simulation.numerics.eulerStepR
-import no.sigurof.gravity.simulation.numerics.verletStepR
+import no.sigurof.gravity.physics.ConservativeForceLaw
+import no.sigurof.gravity.simulation.integration.Integrator
+import no.sigurof.gravity.simulation.integration.utils.eulerStepR
+import no.sigurof.gravity.simulation.integration.utils.verletStepR
 import org.joml.Vector3f
 
 const val VELOCITY_ERROR =
@@ -24,7 +26,7 @@ class VerletIntegrator(
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
     private val dt: Float,
-    private val potentials: List<ConservativePotential>
+    private val forceLaws: List<ConservativeForceLaw>
 ) : Integrator<VerletState> {
     private val p: List<Array<Vector3f>> = listOf(
         initialPositions.copyOf(),
@@ -51,7 +53,11 @@ class VerletIntegrator(
     }
 
     override fun getState(): VerletState {
-        return VerletState(p[lastPosIndex].toList(), a.toList(), t)
+        return VerletState(
+            p[lastPosIndex].toList(),
+            a.toList(),
+            t
+        )
     }
 
     private fun iteration() {
@@ -87,7 +93,7 @@ class VerletIntegrator(
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }
-        for (potential in potentials){
+        for (potential in forceLaws){
             potential.updateAcc(this)
         }
     }
