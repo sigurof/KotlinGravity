@@ -11,8 +11,10 @@ import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.times
 import no.sigurof.gravity.utils.randomAngle
 import no.sigurof.gravity.utils.randomDirection
+import no.sigurof.gravity.utils.randomFloatBetween
 import org.joml.Vector3f
 import kotlin.math.*
+import kotlin.random.Random
 
 fun getSunEarthMoon(g: Float): List<MassPosVel> {
     val m1 = 50f
@@ -46,6 +48,44 @@ fun getSunEarthMoon(g: Float): List<MassPosVel> {
     return listOf(b1, b21, b22)
 }
 
+fun solarSystemWithMoons(
+    g: Float,
+    node: GravityNode,
+    baryPos: Vector3f,
+    baryVel: Vector3f
+): List<MassPosVel> {
+    val planets = mutableListOf<MassPosVel>()
+    val sun = PointMass(node.mass, baryPos, baryVel)
+    for (i in node.planets.indices) {
+        val (fictSun, planetsBaryCenter) = restingTwoBodySystem(
+            g = g,
+            m1 = node.mass,
+            m2 = node.planets[i].totalMass,
+            t = node.planets[i].period,
+            e = node.planets[i].eccentricity
+        )
+        planets.addAll(solarSystemWithMoons(g, node.planets[i], planetsBaryCenter.r, planetsBaryCenter.v))
+        sun.r += fictSun.r
+        sun.v += fictSun.v
+    }
+    for (planet in planets) {
+        planet.r += baryPos
+        planet.v += baryVel
+    }
+    planets.add(sun)
+    return planets
+}
+
+class GravityNode(
+    val mass: Float,
+    val planets: List<GravityNode>,
+    val period: Float,
+    val eccentricity: Float
+) {
+    val totalMass: Float
+        get() = mass + planets.map { it.totalMass }.sum()
+}
+
 fun aSolarSystem(
     g: Float,
     msun: Float,
@@ -61,11 +101,11 @@ fun aSolarSystem(
         PointMass(msun, Vector3f(0f, 0f, 0f), Vector3f(0f, 0f, 0f))
     for (i in ms.indices) {
         val (fictSun, planet) = restingTwoBodySystem(
-            msun,
-            ms[i],
-            g,
-            ts[i],
-            es[i]
+            g = g,
+            m1 = msun,
+            m2 = ms[i],
+            t = ts[i],
+            e = es[i]
         )
         fictSuns.add(fictSun)
         planets.add(planet)
@@ -113,19 +153,19 @@ fun twoBodySystem(
 
 
 fun restingTwoBodySystem(
+    g: Float,
     m1: Float,
     m2: Float,
-    g: Float,
     t: Float,
     e: Float
 ): Pair<MassPosVel, MassPosVel> {
     val mu = m1 * m2 / (m1 + m2)
     val (rVec, vVec) = getCentralForceProblemPositionAndVelocity(
-        g,
-        m1,
-        m2,
-        t,
-        e
+        g = g,
+        m1 = m1,
+        m2 = m2,
+        t = t,
+        e = e
     )
 
     val r1Vec = mu / m1 * rVec
@@ -202,5 +242,74 @@ internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair> {
         forcePairs.add(forcePair)
     }
     return forcePairs.toTypedArray()
+}
 
+internal fun randomDistributionAveragingTo(total: Float, n: Int): List<Float> {
+    val masses = (0 until n).map { randomFloatBetween(0f, 1f) }
+    val tot = masses.sum()
+    return masses.map { it * total / tot }
+}
+
+internal fun getRandomGravityNode(
+    mass: Float,
+    orbitalPeriod: Float,
+    eccentricityBetween: Pair<Float, Float>,
+    numPlanets: Pair<Int, Int>,
+    remainingDepth: Int
+): GravityNode {
+    val sunMass = mass * 0.90f
+    val sunT = orbitalPeriod * 0.40f
+    val planetsMass = mass - sunMass
+    val planetsPeriod = orbitalPeriod - sunT
+    val number = Random.nextInt(numPlanets.first, numPlanets.second)
+    val masses = randomDistributionAveragingTo(planetsMass, number)
+    val periods = randomDistributionAveragingTo(planetsPeriod, number)
+    val planets = mutableListOf<GravityNode>()
+    if (remainingDepth > 0) {
+        for (i in 0 until number) {
+            planets.add(
+                getRandomGravityNode(masses[i], periods[i], eccentricityBetween, numPlanets, remainingDepth - 1)
+            )
+        }
+    }
+    return GravityNode(
+        mass = sunMass,
+        planets = planets,
+        period = sunT,
+        eccentricity = randomFloatBetween(eccentricityBetween.first, eccentricityBetween.second)
+    )
+}
+
+
+internal fun getASolarSystem(): GravityNode {
+    val tearth = 50f
+    val tmoon = tearth / 12f
+
+    val mmoon = 0.01f
+    val mearth = 1f
+    val msun = 2000f
+
+    val moon = GravityNode(
+        mass = mmoon,
+        planets = listOf(),
+        period = tmoon,
+        eccentricity = 0f
+    )
+    val earth = GravityNode(
+        mass = mearth,
+        planets = listOf(
+            moon
+        ),
+        period = tearth,
+        eccentricity = 0f
+
+    )
+    return GravityNode(
+        msun,
+        planets = listOf(
+            earth
+        ),
+        period = 0f,
+        eccentricity = 0f
+    )
 }

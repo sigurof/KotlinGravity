@@ -10,22 +10,35 @@ import no.sigurof.grajuny.renderer.CommonRenderer
 import no.sigurof.grajuny.resource.ResourceManager
 import no.sigurof.grajuny.scenario.Scenario
 import no.sigurof.grajuny.shaders.settings.impl.BillboardShaderSettings
+import no.sigurof.grajuny.utils.randomDirection
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
-import no.sigurof.gravity.physics.gravity.newtonian.utils.aSolarSystem
-import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
-import no.sigurof.gravity.physics.hookeslaw.BasicHarmonic
+import no.sigurof.gravity.physics.gravity.newtonian.utils.*
+import no.sigurof.gravity.physics.hookeslaw.DampedHarmonic
 import no.sigurof.gravity.physics.hookeslaw.HarmonicForceLaw
-import no.sigurof.gravity.physics.hookeslaw.utils.rectangularMesh
+import no.sigurof.gravity.physics.uniformforce.UniformForceLaw
 import no.sigurof.gravity.simulation.Simulation
 import no.sigurof.gravity.simulation.integration.euler.EulerIntegrator
 import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
 import no.sigurof.gravity.utils.operators.minus
+import no.sigurof.gravity.utils.operators.times
 import org.joml.Vector3f
 import org.joml.Vector4f
 import kotlin.math.pow
+
+// TODO
+/**
+ * Features to implement:
+ *
+ * More customizable solar systems (medium)
+ * Coloring based on speed (easy +)
+ * Multithreading calculations (hard+)
+ * Simultaneous simulation with animation (hard ++)
+ *
+ *
+ * */
 
 
 fun main() {
@@ -35,10 +48,10 @@ fun main() {
 
 
 fun gravity() {
-    val stepsPerFrame = 1
+    val stepsPerFrame = 5
     val numberOfFrames = 5000
-    val g = 9.81f
-    val dt = 0.01f
+    val g = 0.981f
+    val dt = 0.005f
     val numObjects = 10
     val mass = Pair(1f, 20f)
     val time = Pair(1f, 20f)
@@ -46,7 +59,7 @@ fun gravity() {
     val msun = 200f
     val originPos = Vector3f(0f, 0f, 0f)
     val originVel = Vector3f(0f, 0f, 0f)
-    val objects = aSolarSystem(
+    var objects = aSolarSystem(
         g = g,
         msun = msun,
         ms = (0 until numObjects).map { randomFloatBetween(mass.first, mass.second) }.toTypedArray(),
@@ -54,6 +67,24 @@ fun gravity() {
         es = (0 until numObjects).map { randomFloatBetween(ecc.first, ecc.second) }.toTypedArray(),
         baryPos = originPos,
         baryVel = originVel
+    )
+    objects = solarSystemWithMoons(
+        g = g,
+        node = getASolarSystem(),
+        baryPos = originPos,
+        baryVel = originVel
+    )
+    objects = solarSystemWithMoons(
+        g = g,
+        node = getRandomGravityNode(
+            mass = 1000f ,
+            orbitalPeriod = 500f,
+            eccentricityBetween = Pair(0.0f, 0.5f),
+            numPlanets = Pair(2, 5),
+            remainingDepth = 2
+        ),
+        baryVel = originVel,
+        baryPos = originPos
     )
     val newtonianPotential = NewtonianForceLaw(
         g = g,
@@ -82,31 +113,33 @@ fun harmonic() {
     val numberOfFrames = 5000
     val dt = 0.01f
     val originVel = Vector3f(0f, 0f, 0f)
-    val equilibriumDistance = 1f
-    val springConstant = 1f
-    val dampingTerm = 0f
-    val w = 5
+    val equilibriumDistance = 3.75f
+    val springConstant = 200f
+    val dampingTerm = 2f
+    val w = 10
     val h = 10
     val objects = (0 until w * h).map {
         val i = it % w
         val j = (it - i) / w
         PointMass(
-            1f, Vector3f(i.toFloat(), j.toFloat(), 0f), originVel
+            1f, randomDirection() * randomFloatBetween(3.5f, 4f), originVel
         )
     }
+    val constForce = UniformForceLaw(Vector3f(0f, -1f, 0f))
     val harmonicPotential = HarmonicForceLaw(
-        harmonicOscillation = BasicHarmonic(
+        harmonicOscillation = DampedHarmonic(
             equilibriumDistance
             , springConstant
+            , dampingTerm
         )
-        , forcePairs = rectangularMesh(w, h, 0)
+        , forcePairs = newtonianForcePairs(objects.size)
     )
     val positions = Simulation(
         integrator = EulerIntegrator(
             initialPositions = objects.map { it.r }.toTypedArray(),
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
-            forceLaws = listOf(harmonicPotential),
+            forceLaws = listOf(harmonicPotential, constForce),
             dt = dt
         ),
         stepsPerFrame = stepsPerFrame,
@@ -122,7 +155,7 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
     val density = 100f
     DisplayManager.withWindowOpen { window ->
         val light = Light.Builder()
-            .position(Vector3f(0f, 100f, 0f))
+            .position(recording.first().last())
             .ambient(0.15f)
             .build()
         val camera = Camera.Builder()
@@ -158,15 +191,16 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
         val scenario = Scenario(window, models, context, background)
 
         scenario.prepare()
-        var frame = 0
+        var frame = -1
         while (DisplayManager.isOpen()) {
             DisplayManager.eachFrameDo {
                 println(frame)
+                frame = (frame + 1) % recording.size
                 for ((i: Int, position: Vector3f) in recording[frame].withIndex()) {
                     objects[i].position = position
+
                 }
                 scenario.run()
-                frame = (frame + 1) % recording.size
             }
         }
         scenario.cleanUp()

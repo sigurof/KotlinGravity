@@ -83,11 +83,6 @@ class VerletIntegrator(
         stepper = ::iteration
     }
 
-//    override fun zeroOutAcceleration() {
-//        for (i in a.indices) {
-//            a[i] = Vector3f(0f, 0f, 0f)
-//        }
-//    }
 
     override fun updateAcceleration(){
         for (i in a.indices) {
@@ -95,6 +90,9 @@ class VerletIntegrator(
         }
         for (potential in forceLaws){
             potential.updateAcc(this)
+        }
+        for (i in a.indices) {
+            a[i] = a[i] / m[i]
         }
     }
 

@@ -21,6 +21,11 @@ fun randomFloatBetween(min: Double, max: Double): Float {
     return Random.nextDouble(min, max).toFloat()
 }
 
+
+fun randomFloatBetween(min: Float, max: Float): Float {
+    return Random.nextDouble(min.toDouble(), max.toDouble()).toFloat()
+}
+
 fun randomAngle(): Float {
     val between0And1: Float = Random.nextFloat()
     return between0And1 * 2f * PI.toFloat()

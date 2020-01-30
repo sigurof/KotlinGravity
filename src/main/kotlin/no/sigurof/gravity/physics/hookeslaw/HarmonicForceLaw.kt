@@ -24,9 +24,6 @@ class HarmonicForceLaw(
             acc[i] += f
             acc[j] -= f
         }
-        for (i in acc.indices) {
-            acc[i] = acc[i] / mass[i]
-        }
     }
 
     override fun <T> updateAcc(integrator: Integrator<T>) {
@@ -34,9 +31,6 @@ class HarmonicForceLaw(
             val f = harmonicOscillation.forceOnFrom(integrator.r[i], integrator.v[i], integrator.r[j], integrator.v[j])
             integrator.a[i] += f
             integrator.a[j] -= f
-        }
-        for (i in integrator.a.indices) {
-            integrator.a[i] = integrator.a[i] / integrator.m[i]
         }
     }
 }

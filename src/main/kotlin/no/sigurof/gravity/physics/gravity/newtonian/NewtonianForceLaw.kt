@@ -26,9 +26,6 @@ class NewtonianForceLaw(
             acc[i] += f
             acc[j] -= f
         }
-        for (i in acc.indices) {
-            acc[i] = acc[i] / mass[i]
-        }
     }
 
     override fun <T> updateAcc(integrator: Integrator<T>) {
@@ -43,9 +40,6 @@ class NewtonianForceLaw(
                 )
             integrator.a[i] += f
             integrator.a[j] -= f
-        }
-        for (i in integrator.a.indices) {
-            integrator.a[i] = integrator.a[i] / integrator.m[i]
         }
     }
 }

@@ -45,6 +45,9 @@ class EulerIntegrator(
         for (potential in forceLaws){
             potential.updateAcc(this)
         }
+        for (i in a.indices) {
+            a[i] = a[i] / m[i]
+        }
     }
 
     private fun iteration() {
@@ -55,11 +58,5 @@ class EulerIntegrator(
             v[i] = posVel.second
         }
     }
-
-//    override fun zeroOutAcceleration() {
-//        for (i in a.indices) {
-//            a[i] = Vector3f(0f, 0f, 0f)
-//        }
-//    }
 
 }
