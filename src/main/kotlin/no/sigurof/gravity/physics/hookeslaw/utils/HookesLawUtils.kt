@@ -93,6 +93,12 @@ fun rectangularMeshNearestAndNextNearest(w: Int, h: Int, r: Int): Array<ForcePai
     return forcePairs.toTypedArray()
 }
 
+// 6 7
+// 4 5
+
+// 2 3
+// 0 1
+
 fun meshCyclicInWidth(w: Int, h: Int, r: Int): Array<ForcePair> {
     val length = w * h + r
     val forcePairs = mutableListOf<ForcePair>()
@@ -107,4 +113,16 @@ fun meshCyclicInWidth(w: Int, h: Int, r: Int): Array<ForcePair> {
         }
     }
     return forcePairs.toTypedArray()
+}
+
+fun mesh2x2x2(): Array<ForcePair> {
+    return mutableListOf<ForcePair>(
+        ForcePair(0, 1), ForcePair(0, 2), ForcePair(0, 4),
+        ForcePair(1, 3), ForcePair(1, 5),
+        ForcePair(2, 3), ForcePair(2, 6),
+        ForcePair(3, 7),
+        ForcePair(4, 6), ForcePair(4,5),
+        ForcePair(5,7),
+        ForcePair(6, 7)
+    ).toTypedArray()
 }
