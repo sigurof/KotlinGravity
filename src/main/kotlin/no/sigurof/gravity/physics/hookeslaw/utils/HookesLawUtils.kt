@@ -41,12 +41,20 @@ fun above(index: Int, w: Int): Int? {
     return (index - w).takeIf { it >= 0 }
 }
 
+fun twoBelow(index: Int, w: Int, length: Int): Int? {
+    return (index + 2*w).takeIf { it < length }
+}
+
 fun below(index: Int, w: Int, length: Int): Int? {
     return (index + w).takeIf { it < length }
 }
 
 fun right(index: Int, w: Int, length: Int): Int? {
     return (index + 1).takeIf { it % w != 0 && it < length }
+}
+
+fun twoRight(index: Int, w: Int, length: Int): Int? {
+    return (index + 2).takeIf{ it % w != 0 && it < length }
 }
 
 fun left(index: Int, w: Int): Int? {
@@ -58,10 +66,26 @@ fun rectangularMesh(w: Int, h: Int, r: Int): Array<ForcePair> {
     val forcePairs = mutableListOf<ForcePair>()
     for (i in 0 until length) {
         listOfNotNull(
-            above(i, w),
+//            above(i, w),// For å unngå double counting
+            below(i, w, length),
+            right(i, w, length)
+//            left(i, w)// For å unngå double counting
+        ).forEach {
+            forcePairs.add(ForcePair(i, it))
+        }
+    }
+    return forcePairs.toTypedArray()
+}
+
+fun rectangularMeshNearestAndNextNearest(w: Int, h: Int, r: Int): Array<ForcePair> {
+    val length = w * h + r
+    val forcePairs = mutableListOf<ForcePair>()
+    for (i in 0 until length) {
+        listOfNotNull(
             below(i, w, length),
             right(i, w, length),
-            left(i, w)
+            twoBelow(i, w, length),
+            twoRight(i, w, length)
         ).forEach {
             forcePairs.add(ForcePair(i, it))
         }
