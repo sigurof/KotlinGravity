@@ -17,7 +17,6 @@ import kotlin.math.pow
 
 
 fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
-    println(recording.size)
     val density = 100f
     DisplayManager.withWindowOpen { window ->
         val light = Light.Builder()
@@ -60,11 +59,9 @@ fun visualize(planets: List<MassPosVel>, recording: List<List<Vector3f>>) {
         var frame = -1
         while (DisplayManager.isOpen()) {
             DisplayManager.eachFrameDo {
-                println(frame)
                 frame = (frame + 1) % recording.size
                 for ((i: Int, position: Vector3f) in recording[frame].withIndex()) {
                     objects[i].position = position
-
                 }
                 scenario.run()
             }

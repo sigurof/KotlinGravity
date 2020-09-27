@@ -1,6 +1,6 @@
 package no.sigurof.gravity
 
-import no.sigurof.gravity.programs.sim1
+import no.sigurof.gravity.programs.demoCircleOfPlanets
 
 // TODO
 /**
@@ -16,6 +16,6 @@ import no.sigurof.gravity.programs.sim1
 
 
 fun main() {
-    sim1()
+    demoCircleOfPlanets()
 }
 

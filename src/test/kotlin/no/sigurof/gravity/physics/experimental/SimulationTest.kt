@@ -5,7 +5,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
-import no.sigurof.gravity.physics.gravity.newtonian.utils.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.utils.buildASolarSystem
 import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
 import no.sigurof.gravity.simulation.Simulation
 import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
@@ -21,7 +21,7 @@ internal class SimulationTest : StringSpec() {
             val dt = 0.01f
             val stepsPerFrame = 5
 
-            val objects = aSolarSystem(
+            val objects = buildASolarSystem(
                 g,
                 20f,
                 (0 until 3).map { randomFloatBetween(0.5f, 3f) }.toTypedArray(),

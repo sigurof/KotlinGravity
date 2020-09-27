@@ -12,7 +12,7 @@ import io.kotlintest.tables.row
 import no.sigurof.grajuny.utils.randomFloatBetween
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.newtonian.utils.aSolarSystem
+import no.sigurof.gravity.physics.gravity.newtonian.utils.buildASolarSystem
 import no.sigurof.gravity.physics.gravity.newtonian.utils.restingTwoBodySystem
 import no.sigurof.gravity.physics.gravity.newtonian.utils.totalEnergyOf
 import no.sigurof.gravity.utils.operators.minus
@@ -27,7 +27,7 @@ internal class NewtonianGravityUtilsKtTest : StringSpec({
         val originPos = Vector3f(0f, 0f, 0f)
         val originVel = Vector3f(0f, 0f, 0f)
         val g = 9.81f
-        val planets = aSolarSystem(
+        val planets = buildASolarSystem(
             g,
             1000f,
             (0 until 20).map { Random.nextDouble(0.5, 30.0).toFloat() }.toTypedArray(),
