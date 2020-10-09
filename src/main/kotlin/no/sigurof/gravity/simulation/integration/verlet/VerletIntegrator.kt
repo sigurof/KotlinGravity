@@ -17,6 +17,7 @@ const val VELOCITY_ERROR =
 
 class VerletState(
     val pos: List<Vector3f>,
+    val posOld: List<Vector3f>,
     val acc: List<Vector3f>,
     val t: Float
 )
@@ -41,20 +42,25 @@ class VerletIntegrator(
     override var t = 0.0f
     private var newPosIndex = 1
     private var lastPosIndex = 0
-    private var stepper: () -> Unit = ::firstIteration
+    private var iterator: () -> Unit = ::firstIteration
     private var temp: Int = 0
 
-    override fun step() {
-        stepper()
+    fun posContainerIndexSwitch(){
         temp = newPosIndex
         newPosIndex = lastPosIndex
         lastPosIndex = temp
+    }
+
+    override fun step() {
+        iterator.invoke()
+        posContainerIndexSwitch()
         t += dt
     }
 
     override fun getState(): VerletState {
         return VerletState(
             p[lastPosIndex].toList(),
+            p[newPosIndex].toList(),
             a.toList(),
             t
         )
@@ -80,7 +86,7 @@ class VerletIntegrator(
                 dt
             )
         }
-        stepper = ::iteration
+        iterator = ::iteration
     }
 
 

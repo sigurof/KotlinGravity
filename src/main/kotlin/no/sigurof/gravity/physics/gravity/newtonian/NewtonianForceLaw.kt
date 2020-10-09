@@ -28,7 +28,8 @@ class NewtonianForceLaw(
         }
     }
 
-    override fun <T> updateAcc(integrator: Integrator<T>) {
+    // TODO Should not take in Integrator. Should take in a ForceState.
+    override fun updateAcc(integrator: Integrator<*>) {
         for ((i, j) in forcePairs) {
             val f =
                 forceBetween(

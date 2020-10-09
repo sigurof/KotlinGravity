@@ -4,7 +4,7 @@ import no.sigurof.gravity.simulation.integration.Integrator
 import org.joml.Vector3f
 
 interface ForceLaw {
-    fun <T> updateAcc(integrator: Integrator<T>)
+    fun updateAcc(integrator: Integrator<*>)
 }
 
 interface ConservativeForceLaw : ForceLaw {

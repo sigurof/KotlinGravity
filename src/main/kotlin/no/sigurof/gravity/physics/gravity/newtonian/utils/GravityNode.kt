@@ -3,7 +3,6 @@ package no.sigurof.gravity.physics.gravity.newtonian.utils
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.utils.operators.plus
-import no.sigurof.gravity.utils.randomFloatBetween
 import org.joml.Vector3f
 import kotlin.random.Random
 
@@ -44,7 +43,7 @@ class GravityNode(
     }
 }
 
-internal fun getRandomGravityNode(
+internal fun buildRandomGravityNode(
     mass: Float,
     orbitalPeriod: Float,
     eccentricityBetween: Pair<Float, Float>,
@@ -62,7 +61,7 @@ internal fun getRandomGravityNode(
     if (remainingDepth > 0) {
         for (i in 0 until number) {
             planets.add(
-                getRandomGravityNode(masses[i], periods[i], eccentricityBetween, numPlanets, remainingDepth - 1)
+                buildRandomGravityNode(masses[i], periods[i], eccentricityBetween, numPlanets, remainingDepth - 1)
             )
         }
     }
@@ -70,39 +69,14 @@ internal fun getRandomGravityNode(
         mass = sunMass,
         satellites = planets,
         period = sunT,
-        eccentricity = randomFloatBetween(eccentricityBetween.first, eccentricityBetween.second)
+        eccentricity = no.sigurof.gravity.utils.randomFloatBetween(
+            eccentricityBetween.first,
+            eccentricityBetween.second
+        )
     )
 }
 
-fun buildPlanetsFromGravityNode(
-    g: Float,
-    node: GravityNode,
-    baryPos: Vector3f,
-    baryVel: Vector3f
-): List<MassPosVel> {
-    val planets = mutableListOf<MassPosVel>()
-    val sun = PointMass(node.mass, baryPos, baryVel)
-    for (planet in node.satellites) {
-        val (fictSun, planetsBaryCenter) = restingTwoBodySystem(
-            g = g,
-            m1 = node.mass,
-            m2 = planet.totalMass,
-            t = planet.period,
-            e = planet.eccentricity
-        )
-        planets.addAll(buildPlanetsFromGravityNode(g, planet, planetsBaryCenter.r, planetsBaryCenter.v))
-        sun.r += fictSun.r
-        sun.v += fictSun.v
-    }
-    for (planet in planets) {
-        planet.r += baryPos
-        planet.v += baryVel
-    }
-    planets.add(sun)
-    return planets
-}
-
-internal fun getSunEarthMoonGravityNode(): GravityNode {
+internal fun buildSunEarthMoonGravityNode(): GravityNode {
     val tearth = 50f
     val tmoon = tearth / 12f
 

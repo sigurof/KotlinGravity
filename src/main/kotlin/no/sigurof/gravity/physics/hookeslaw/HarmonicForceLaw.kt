@@ -26,7 +26,7 @@ class HarmonicForceLaw(
         }
     }
 
-    override fun <T> updateAcc(integrator: Integrator<T>) {
+    override fun updateAcc(integrator: Integrator<*>) {
         for ((i, j) in forcePairs) {
             val f = harmonicOscillation.forceOnFrom(integrator.r[i], integrator.v[i], integrator.r[j], integrator.v[j])
             integrator.a[i] += f

@@ -16,7 +16,7 @@ class UniformForceLaw(
     ) {
     }
 
-    override fun <T> updateAcc(integrator: Integrator<T>) {
+    override fun  updateAcc(integrator: Integrator<*>) {
         for (i in integrator.a.indices) {
             val f = force
             integrator.a[i] += f
