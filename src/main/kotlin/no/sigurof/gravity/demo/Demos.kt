@@ -38,11 +38,11 @@ fun demoCircleOfPlanets() {
     simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential))
 }
 
-fun demoStarWithManySatellites(): List<MassPosVel> {
+fun demoStarWithManySatellites(n: Int): List<MassPosVel> {
     val g = 0.981f
     return GravityNode(
         1000f,
-        satellites = (0 until 1000).map {
+        satellites = (0 until n).map {
             GravityNode(
                 mass = randomFloatBetween(0.1f, 1f),
                 satellites = listOf(),

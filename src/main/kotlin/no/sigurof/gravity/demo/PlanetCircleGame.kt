@@ -1,27 +1,27 @@
 package no.sigurof.gravity.demo
 
 import no.sigurof.grajuny.camera.Camera
+import no.sigurof.grajuny.camera.impl.SpaceShipCamera
 import no.sigurof.grajuny.color.BLUE
 import no.sigurof.grajuny.color.Gradient
 import no.sigurof.grajuny.color.RED
 import no.sigurof.grajuny.color.WHITE
 import no.sigurof.grajuny.components.SphereBillboardRenderer
 import no.sigurof.grajuny.game.Game
-import no.sigurof.grajuny.light.LightSource
+import no.sigurof.grajuny.light.LightManager
+import no.sigurof.grajuny.light.phong.PointLight
 import no.sigurof.grajuny.node.GameObject
-import no.sigurof.grajuny.resource.material.ReflectiveMaterial
-import no.sigurof.grajuny.shader.shaders.SphereBillboardShader
+import no.sigurof.grajuny.resource.material.PhongMaterial
 import no.sigurof.grajuny.utils.ORIGIN
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
+import no.sigurof.gravity.physics.gravity.newtonian.utils.generateCircleOfPlanets
 import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
 import no.sigurof.gravity.simulation.Simulation
 import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
 import no.sigurof.gravity.simulation.integration.verlet.VerletState
-import no.sigurof.gravity.utils.operators.minus
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
-import kotlin.math.pow
 
 
 //val avgSpeed = recording[2].vel
@@ -33,26 +33,37 @@ import kotlin.math.pow
 class PlanetCircleGame(
     window: Long
 ) : Game(window = window, background = Vector4f(0f, 0f, 0f, 1f)) {
-    private var light: LightSource = LightSource.Builder().position(Vector3f(0f, 15f, 0f)).build()
+    private var light: PointLight
     private var planetObjs: List<GameObject>
     private var simulation: Simulation<VerletState>
     private var characteristicV: Float? = null
 
     //    private var simulation: Simulation<VerletState>
-    override val camera: Camera
+    private val camera: Camera
     private val gradient = Gradient(
         start = BLUE,
         end = RED
     )
 
     init {
+
+        light = PointLight(
+            position = ORIGIN,
+            constant = 1f,
+            linear = 0.1f,
+            quadratic = 0.01f,
+            ambient = WHITE,
+            diffuse = WHITE,
+            specular = WHITE
+        )
+        LightManager.LIGHT_SOURCES.add(light)
         val stepsPerFrame = 5
         val numberOfFrames = 5000
-        val dt = 0.005f
+        val dt = 0.05f
         val g = 0.981f
-//        val objects = generateCircleOfPlanets(g = g, numberOfPlanetPairs = 5, radius = 3f)
+        val objects = generateCircleOfPlanets(g = g, numberOfPlanetPairs = 11, radius = 3f)
 //        val objects = demoRandomGravityNode()
-        val objects = demoStarWithManySatellites()
+//        val objects = demoStarWithManySatellites(n = 10)
 //        val objects = demoSolarSystemWithMoons1()
 //        val objects = demoSolarSystemWithMoons2()
 //        val objects = demoSolarSystemAndMoons2()
@@ -71,14 +82,18 @@ class PlanetCircleGame(
             stepsPerFrame = stepsPerFrame,
             numFrames = numberOfFrames
         )
+        val redMaterial = PhongMaterial(
+            ambient = RED,
+            diffuse = RED,
+            specular = WHITE,
+            shine = 0.1f
+        )
         planetObjs = objects.map {
             GameObject.withComponent(
                 SphereBillboardRenderer(
-                    texture = null,
-                    material = ReflectiveMaterial(WHITE, 10f, 1000f),
-                    shadersToUse = listOf(SphereBillboardShader),
+                    material = redMaterial,
                     position = ORIGIN,
-                    radius = it.m.pow(0.5f) / 5f
+                    radius = 1f
                 )
             ).at(it.r).build()
         }
@@ -93,10 +108,13 @@ class PlanetCircleGame(
                 planetObjs
             ).build()
         )
-        camera = Camera.Builder()
-            .at(Vector3f(2f, objects.map { it.r.length() }.max()!!, 0f))
-            .capturingMouseInput(window)
-            .lookingAt(ORIGIN).build()
+        camera = SpaceShipCamera(
+            window = window,
+            parent = planetObjs[0],
+            at = Vector3f(5f, 5f, 5f),
+            lookAt = ORIGIN
+        )
+
 
     }
 
@@ -106,17 +124,17 @@ class PlanetCircleGame(
         planetObjs.zip(state.pos).forEach {
             it.first.transform = Matrix4f().translate(it.second)
         }
-        characteristicV ?: run {
-            characteristicV = state.pos.zip(state.posOld).map { (it.first - it.second).length() }.average().toFloat()
-        }
-        val v = state.pos.zip(state.posOld).map { (it.first - it.second).length() }
-        planetObjs.zip(v).forEach {
-            val value = it.second / characteristicV!!
-            val evaluate = gradient.evaluate(value)
-            ((it.first.components[0] as SphereBillboardRenderer).material as ReflectiveMaterial).color =
-                evaluate
-        }
-        light.position = planetObjs.last().getPosition()
+//        characteristicV ?: run {
+//            characteristicV = state.pos.zip(state.posOld).map { (it.first - it.second).length() }.average().toFloat()
+//        }
+//        val v = state.pos.zip(state.posOld).map { (it.first - it.second).length() }
+//        planetObjs.zip(v).forEach {
+//            val value = it.second / characteristicV!!
+//            val evaluate = gradient.evaluate(value)
+//            ((it.first.components[0] as SphereBillboardRenderer).material as PhongMaterial).color =
+//                evaluate
+//        }
+        light.position.set(planetObjs.last().getPosition())
 
     }
 }

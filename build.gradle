@@ -4,7 +4,7 @@ plugins {
 
 group 'no.sigurof'
 version '0.0.2'
-def grajunyVersion = '0.0.3-SNAPSHOT'
+def grajunyVersion = '0.0.3'
 
 repositories {
     mavenLocal()
