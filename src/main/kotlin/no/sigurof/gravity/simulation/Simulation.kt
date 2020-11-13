@@ -8,7 +8,7 @@ class Simulation<S>(
     private val numFrames: Int
 ) {
 
-    fun <I> iterate(transform: (state: S) -> I): List<I> {
+    fun <I> record(transform: (state: S) -> I): List<I> {
         val images = mutableListOf<I>()
         integrator.updateAcceleration()
 
@@ -25,6 +25,17 @@ class Simulation<S>(
             frame += 1
         }
         return images
+    }
+
+    fun getState(): S = integrator.getState()
+
+    fun step() {
+        var step =0
+        while (step < stepsPerFrame) {
+            integrator.step()
+            integrator.updateAcceleration()
+            step += 1
+        }
     }
 
 

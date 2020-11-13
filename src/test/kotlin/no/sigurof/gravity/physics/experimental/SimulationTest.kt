@@ -47,7 +47,7 @@ internal class SimulationTest : StringSpec() {
                 ),
                 stepsPerFrame = stepsPerFrame,
                 numFrames = numberOfFrames
-            ).iterate {
+            ).record {
                 it.pos
             }
             " take as many frames as supplied in the arguments" {

@@ -51,10 +51,9 @@ fun triangularPyramid() {
         ),
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
-    ).iterate {
+    ).record {
         it.pos
     }
-    visualize(objects, positions)
 }
 
 
@@ -91,9 +90,8 @@ fun harmonic() {
         ),
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
-    ).iterate {
+    ).record {
         it.pos
     }
-    visualize(objects, positions)
 }
 

@@ -35,7 +35,7 @@ internal class VerletTest : BehaviorSpec() {
                         initialVelocities = objects.map { it.v }.toTypedArray(),
                         dt = dt
                     )
-                ).iterate {
+                ).record {
                     it.pos
                 }
                 then("The number of frames captured is equal to the requested number") {

@@ -31,9 +31,8 @@ fun simulateVerletAndVisualize(
         ),
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
-    ).iterate {
+    ).record {
         ImagePosVel(it.pos, it.pos.zip(it.posOld).map { p -> (p.first - p.second) / dt })
     }
-    visualizeWithVel(objects, positions);
 }
 
