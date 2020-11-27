@@ -11,6 +11,5 @@ interface Integrator<T> {
     val t: Float
     fun step()
     fun getState(): T
-    fun updateAcceleration()
 }
 

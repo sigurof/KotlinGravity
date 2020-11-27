@@ -25,7 +25,12 @@ class EulerIntegrator(
     override var t = 0.0f
 
     override fun step() {
-        iteration()
+        updateAcceleration()
+        updatePositionAndVelocity()
+        updateTime()
+    }
+
+    private fun updateTime() {
         t += dt
     }
 
@@ -38,7 +43,7 @@ class EulerIntegrator(
         )
     }
 
-    override fun updateAcceleration(){
+    private fun updateAcceleration(){
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }
@@ -50,7 +55,7 @@ class EulerIntegrator(
         }
     }
 
-    private fun iteration() {
+    private fun updatePositionAndVelocity() {
         for (i in a.indices) {
             val posVel =
                 eulerStepRV(r[i], v[i], a[i], dt)

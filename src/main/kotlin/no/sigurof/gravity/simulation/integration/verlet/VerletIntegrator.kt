@@ -45,15 +45,24 @@ class VerletIntegrator(
     private var iterator: () -> Unit = ::firstIteration
     private var temp: Int = 0
 
-    fun posContainerIndexSwitch(){
+    private fun posContainerIndexSwitch(){
         temp = newPosIndex
         newPosIndex = lastPosIndex
         lastPosIndex = temp
     }
 
     override fun step() {
+        updateAcceleration()
+        updatePosition()
+        updateTime()
+    }
+
+    private fun updatePosition(){
         iterator.invoke()
         posContainerIndexSwitch()
+    }
+
+    private fun updateTime(){
         t += dt
     }
 
@@ -90,7 +99,7 @@ class VerletIntegrator(
     }
 
 
-    override fun updateAcceleration() {
+    private fun updateAcceleration() {
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }
