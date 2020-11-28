@@ -1,18 +1,6 @@
 package no.sigurof.gravity.programs
 
-import no.sigurof.grajuny.utils.randomDirection
-import no.sigurof.grajuny.utils.randomFloatBetween
-import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
-import no.sigurof.gravity.physics.hookeslaw.DampedHarmonic
-import no.sigurof.gravity.physics.hookeslaw.HarmonicForceLaw
-import no.sigurof.gravity.physics.uniformforce.UniformForceLaw
-import no.sigurof.gravity.physics.utils.ForcePair
-import no.sigurof.gravity.simulation.Simulation
-import no.sigurof.gravity.simulation.integration.euler.EulerIntegrator
-import no.sigurof.gravity.utils.operators.times
-import org.joml.Vector3f
-
+/*
 fun triangularPyramid() {
 
     val stepsPerFrame = 1
@@ -39,7 +27,7 @@ fun triangularPyramid() {
     val harmonicPotential = HarmonicForceLaw(
         harmonicOscillation = DampedHarmonic(
             equilibriumDistance, springConstant, dampingTerm
-        ), forcePairs = listOf(ForcePair(0, 1), ForcePair(1,2), ForcePair(2,0), ForcePair(0,3), ForcePair(1,3), ForcePair(2,3)).toTypedArray()
+        )
     )
     val positions = Simulation(
         integrator = EulerIntegrator(
@@ -47,7 +35,8 @@ fun triangularPyramid() {
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
             forceLaws = listOf(harmonicPotential),
-            dt = dt
+            dt = dt,
+            forcePairs = listOf(ForcePair(0, 1), ForcePair(1,2), ForcePair(2,0), ForcePair(0,3), ForcePair(1,3), ForcePair(2,3)).toTypedArray()
         ),
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames
@@ -94,4 +83,5 @@ fun harmonic() {
         it.pos
     }
 }
+*/
 

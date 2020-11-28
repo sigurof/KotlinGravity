@@ -2,6 +2,7 @@ package no.sigurof.gravity.physics.gravity.newtonian.utils
 
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
+import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
 import no.sigurof.gravity.physics.utils.ForcePair
 import no.sigurof.gravity.utils.maths.combinatorics.UniqueCombinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.maths.combinatorics.combinationsOfTwoUniqueUntil
@@ -131,17 +132,23 @@ fun potentialEnergyBetween(body1: MassPosVel, body2: MassPosVel, g: Float): Floa
     return -g * body1.m * body2.m / (body1.r - body2.r).length()
 }
 
-internal fun forceBetween(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: Float): Vector3f {
+internal fun forceBetweenn(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: Float): Vector3f {
     val r12 = r2 - r1
     val d = r12.normalized() / r12.lengthSquared()
     return g * m1 * m2 * d
 }
 
 
-internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair> {
-    val forcePairs = mutableListOf<ForcePair>()
+internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair<*>> {
+    val forcePairs = mutableListOf<ForcePair<NewtonianForceLaw>>()
     for (forcePair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
-        forcePairs.add(forcePair)
+        forcePairs.add(
+            ForcePair(
+                forcePair.first,
+                forcePair.second,
+                forceLaw = NewtonianForceLaw(g = 9.81f)
+            )
+        )
     }
     return forcePairs.toTypedArray()
 }

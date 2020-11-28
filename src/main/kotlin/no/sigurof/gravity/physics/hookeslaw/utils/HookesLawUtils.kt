@@ -1,7 +1,6 @@
 package no.sigurof.gravity.physics.hookeslaw.utils
 
-import no.sigurof.gravity.physics.utils.ForcePair
-
+/*
 
 fun singleStrandForcePairs(numberOfObjects: Int): Array<ForcePair> {
     return Array(numberOfObjects - 1) { i ->
@@ -17,7 +16,9 @@ fun ringStrandForcePairs(numberOfObjects: Int): Array<ForcePair> {
         ) else ForcePair(i, i + 1)
     }
 }
+*/
 
+/*
 fun ringStrandForcePairsList(numberOfObjects: Int): MutableList<ForcePair> {
     return MutableList(numberOfObjects) { i ->
         if (i == numberOfObjects - 1) ForcePair(
@@ -27,7 +28,9 @@ fun ringStrandForcePairsList(numberOfObjects: Int): MutableList<ForcePair> {
 
     }
 }
+*/
 
+/*
 fun ringStrandOneInMiddle(numberOfObjects: Int): Array<ForcePair> {
     val ring =
         ringStrandForcePairsList(numberOfObjects - 1)
@@ -36,6 +39,7 @@ fun ringStrandOneInMiddle(numberOfObjects: Int): Array<ForcePair> {
     }
     return ring.toTypedArray()
 }
+*/
 
 fun above(index: Int, w: Int): Int? {
     return (index - w).takeIf { it >= 0 }
@@ -61,6 +65,7 @@ fun left(index: Int, w: Int): Int? {
     return (index - 1).takeIf { it >= 0 && it % w != (w - 1) }
 }
 
+/*
 fun rectangularMesh(w: Int, h: Int, r: Int): Array<ForcePair> {
     val length = w * h + r
     val forcePairs = mutableListOf<ForcePair>()
@@ -77,6 +82,8 @@ fun rectangularMesh(w: Int, h: Int, r: Int): Array<ForcePair> {
     return forcePairs.toTypedArray()
 }
 
+*/
+/*
 fun rectangularMeshNearestAndNextNearest(w: Int, h: Int, r: Int): Array<ForcePair> {
     val length = w * h + r
     val forcePairs = mutableListOf<ForcePair>()
@@ -93,12 +100,14 @@ fun rectangularMeshNearestAndNextNearest(w: Int, h: Int, r: Int): Array<ForcePai
     return forcePairs.toTypedArray()
 }
 
+*/
 // 6 7
 // 4 5
 
 // 2 3
 // 0 1
 
+/*
 fun meshCyclicInWidth(w: Int, h: Int, r: Int): Array<ForcePair> {
     val length = w * h + r
     val forcePairs = mutableListOf<ForcePair>()
@@ -114,7 +123,9 @@ fun meshCyclicInWidth(w: Int, h: Int, r: Int): Array<ForcePair> {
     }
     return forcePairs.toTypedArray()
 }
+*/
 
+/*
 fun mesh2x2x2(): Array<ForcePair> {
     return mutableListOf<ForcePair>(
         ForcePair(0, 1), ForcePair(0, 2), ForcePair(0, 4),
@@ -126,3 +137,4 @@ fun mesh2x2x2(): Array<ForcePair> {
         ForcePair(6, 7)
     ).toTypedArray()
 }
+*/

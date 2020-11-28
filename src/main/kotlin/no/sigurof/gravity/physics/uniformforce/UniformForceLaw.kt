@@ -1,26 +1,16 @@
 package no.sigurof.gravity.physics.uniformforce
 
-import no.sigurof.gravity.physics.DissipativeForceLaw
-import no.sigurof.gravity.simulation.integration.Integrator
-import no.sigurof.gravity.utils.operators.plus
+import no.sigurof.gravity.physics.ForceLaw
+import no.sigurof.gravity.physics.utils.GeneralState
 import org.joml.Vector3f
+
 
 class UniformForceLaw(
     private val force: Vector3f
-) : DissipativeForceLaw {
-    override fun writeToAcceleration(
-        pos: Array<Vector3f>,
-        vel: Array<Vector3f>,
-        acc: Array<Vector3f>,
-        mass: Array<Float>
-    ) {
-    }
+) : ForceLaw {
 
-    override fun  updateAcc(integrator: Integrator<*>) {
-        for (i in integrator.a.indices) {
-            val f = force
-            integrator.a[i] += f
-        }
+    override fun forceBetween(i: Int, j: Int, state: GeneralState): Vector3f {
+        return force
     }
 }
 

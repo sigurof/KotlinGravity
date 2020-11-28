@@ -37,13 +37,13 @@ internal class SimulationTest : StringSpec() {
                     m = objects.map { it.m }.toTypedArray(),
                     forceLaws = listOf(
                         NewtonianForceLaw(
-                            g = g,
-                            forcePairs = newtonianForcePairs(
-                                objects.size
-                            )
+                            g = g
                         )
                     ),
-                    dt = dt
+                    dt = dt,
+                    forcePairs = newtonianForcePairs(
+                        objects.size
+                    )
                 ),
                 stepsPerFrame = stepsPerFrame,
                 numFrames = numberOfFrames

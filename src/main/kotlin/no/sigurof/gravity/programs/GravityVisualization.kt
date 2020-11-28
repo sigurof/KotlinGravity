@@ -1,7 +1,8 @@
 package no.sigurof.gravity.programs
 
-import no.sigurof.gravity.physics.ConservativeForceLaw
+import no.sigurof.gravity.physics.ForceLaw
 import no.sigurof.gravity.physics.data.MassPosVel
+import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
 import no.sigurof.gravity.physics.gravity.newtonian.utils.simulateASolarSystem
 import no.sigurof.gravity.simulation.Simulation
 import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
@@ -19,7 +20,7 @@ fun simulateVerletAndVisualize(
     numberOfFrames: Int = 5000,
     dt: Float = 0.005f,
     objects: List<MassPosVel> = simulateASolarSystem(g = g),
-    forceLaws: List<ConservativeForceLaw>
+    forceLaws: List<ForceLaw>
 ) {
     val positions = Simulation(
         integrator = VerletIntegrator(
@@ -27,7 +28,8 @@ fun simulateVerletAndVisualize(
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
             dt = dt,
-            forceLaws = forceLaws
+            forceLaws = forceLaws,
+            forcePairs = newtonianForcePairs(10)
         ),
         stepsPerFrame = stepsPerFrame,
         numFrames = numberOfFrames

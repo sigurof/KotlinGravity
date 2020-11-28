@@ -1,37 +1,25 @@
 package no.sigurof.gravity.physics.hookeslaw
 
-import no.sigurof.gravity.physics.DissipativeForceLaw
-import no.sigurof.gravity.physics.utils.ForcePair
-import no.sigurof.gravity.simulation.integration.Integrator
+import no.sigurof.gravity.physics.ForceLaw
+import no.sigurof.gravity.physics.utils.GeneralState
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.normalized
 import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.times
 import org.joml.Vector3f
 
-class HarmonicForceLaw(
-    private val harmonicOscillation: HarmonicOscillation,
-    private val forcePairs: Array<ForcePair>
-) : DissipativeForceLaw {
-    override fun writeToAcceleration(
-        pos: Array<Vector3f>,
-        vel: Array<Vector3f>,
-        acc: Array<Vector3f>,
-        mass: Array<Float>
-    ) {
-        for ((i, j) in forcePairs) {
-            val f = harmonicOscillation.forceOnFrom(pos[i], vel[i], pos[j], vel[j])
-            acc[i] += f
-            acc[j] -= f
-        }
-    }
+class SpringState(
+    val r: Vector3f,
+    val v: Vector3f
+)
 
-    override fun updateAcc(integrator: Integrator<*>) {
-        for ((i, j) in forcePairs) {
-            val f = harmonicOscillation.forceOnFrom(integrator.r[i], integrator.v[i], integrator.r[j], integrator.v[j])
-            integrator.a[i] += f
-            integrator.a[j] -= f
-        }
+class HarmonicForceLaw(
+    private val harmonicOscillation: HarmonicOscillation
+) : ForceLaw {
+
+
+    override fun forceBetween(i: Int, j: Int, state: GeneralState): Vector3f {
+        return harmonicOscillation.forceOnFrom(state.pos[i], state.vel[i], state.pos[j], state.vel[j])
     }
 }
 

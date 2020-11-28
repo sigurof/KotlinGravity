@@ -1,21 +1,21 @@
 package no.sigurof.gravity.demo
 
 import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
-import no.sigurof.gravity.physics.gravity.newtonian.utils.*
-import no.sigurof.gravity.programs.simulateVerletAndVisualize
+import no.sigurof.gravity.physics.gravity.newtonian.utils.GravityNode
+import no.sigurof.gravity.physics.gravity.newtonian.utils.buildRandomGravityNode
 import no.sigurof.gravity.utils.randomFloatBetween
 import org.joml.Vector3f
 
 
+/*
 fun demoSolarSystem() {
     val g = 0.981f
     val objects = simulateASolarSystem(g = g)
     val newtonianPotential = NewtonianForceLaw(
-        g = g,
-        forcePairs = newtonianForcePairs(objects.size)
+        g = g
     )
-    simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential))
+    simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential)),
+    forcePairs = newtonianForcePairs(objects.size)
 }
 
 fun demoSolarSystemAndMoons() {
@@ -37,6 +37,7 @@ fun demoCircleOfPlanets() {
     )
     simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential))
 }
+*/
 
 fun demoStarWithManySatellites(n: Int): List<MassPosVel> {
     val g = 0.981f

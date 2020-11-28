@@ -28,12 +28,13 @@ internal class VerletTest : BehaviorSpec() {
                     stepsPerFrame = stepsPerFrame,
                     integrator = VerletIntegrator(
                         forceLaws = listOf(
-                            NewtonianForceLaw(g, forcePairs = newtonianForcePairs(objects.size))
+                            NewtonianForceLaw(g)
                         ),
                         m = objects.map { it.m }.toTypedArray(),
                         initialPositions = objects.map { it.r }.toTypedArray(),
                         initialVelocities = objects.map { it.v }.toTypedArray(),
-                        dt = dt
+                        dt = dt,
+                        forcePairs = newtonianForcePairs(objects.size)
                     )
                 ).record {
                     it.pos

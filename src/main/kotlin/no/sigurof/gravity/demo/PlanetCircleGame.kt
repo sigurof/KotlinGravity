@@ -30,6 +30,7 @@ class PlanetCircleGame(
     private var simulation: Simulation<VerletState>
 
     private val camera: Camera
+
     init {
 
         light = PointLight(
@@ -48,8 +49,7 @@ class PlanetCircleGame(
         val g = 0.981f
         val objects = demoSolarSystemWithMoons2()
         val newtonianPotential = NewtonianForceLaw(
-            g = g,
-            forcePairs = newtonianForcePairs(objects.size)
+            g = g
         )
         simulation = Simulation(
             integrator = VerletIntegrator(
@@ -57,7 +57,8 @@ class PlanetCircleGame(
                 initialVelocities = objects.map { it.v }.toTypedArray(),
                 m = objects.map { it.m }.toTypedArray(),
                 dt = dt,
-                forceLaws = listOf(newtonianPotential)
+                forceLaws = listOf(newtonianPotential),
+                forcePairs = newtonianForcePairs(objects.size)
             ),
             stepsPerFrame = stepsPerFrame,
             numFrames = numberOfFrames
@@ -73,7 +74,7 @@ class PlanetCircleGame(
                 SphereBillboardRenderer(
                     material = redMaterial,
                     position = ORIGIN,
-                    radius = it.m.pow(1f/3f)
+                    radius = it.m.pow(1f / 3f)
                 )
             ).at(it.r).build()
         }

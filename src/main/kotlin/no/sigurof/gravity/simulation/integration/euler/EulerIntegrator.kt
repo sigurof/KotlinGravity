@@ -1,8 +1,11 @@
 package no.sigurof.gravity.simulation.integration.euler
 
-import no.sigurof.gravity.physics.ForceLaw
+import no.sigurof.gravity.physics.utils.ForcePair
+import no.sigurof.gravity.physics.utils.GeneralState
 import no.sigurof.gravity.simulation.integration.Integrator
 import no.sigurof.gravity.simulation.integration.utils.eulerStepRV
+import no.sigurof.gravity.utils.operators.minus
+import no.sigurof.gravity.utils.operators.plus
 import org.joml.Vector3f
 
 class EulerState(
@@ -13,16 +16,16 @@ class EulerState(
 )
 
 class EulerIntegrator(
-    override val m: Array<Float>,
+    val m: Array<Float>,
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
-    private val forceLaws: List<ForceLaw>,
-    private val dt: Float
+    private val dt: Float,
+    override val forcePairs: Array<ForcePair<*>>
 ) : Integrator<EulerState> {
-    override val r: Array<Vector3f> = initialPositions.copyOf()
-    override val v = initialVelocities.copyOf()
-    override val a = Array(initialPositions.size) { Vector3f(0f, 0f, 0f) }
-    override var t = 0.0f
+    val r: Array<Vector3f> = initialPositions.copyOf()
+    val v = initialVelocities.copyOf()
+    val a = Array(initialPositions.size) { Vector3f(0f, 0f, 0f) }
+    var t = 0.0f
 
     override fun step() {
         updateAcceleration()
@@ -43,12 +46,22 @@ class EulerIntegrator(
         )
     }
 
-    private fun updateAcceleration(){
+    private fun updateAcceleration() {
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }
-        for (potential in forceLaws){
-            potential.updateAcc(this)
+        for (forcePair in forcePairs){
+            val f = forcePair.force(
+                GeneralState(
+                    pos = r,
+                    vel = v,
+                    acc = a,
+                    m = m
+
+                )
+            )
+            a[forcePair.i] += f
+            a[forcePair.j] -= f
         }
         for (i in a.indices) {
             a[i] = a[i] / m[i]
