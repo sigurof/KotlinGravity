@@ -28,7 +28,6 @@ fun simulateVerletAndVisualize(
             initialVelocities = objects.map { it.v }.toTypedArray(),
             m = objects.map { it.m }.toTypedArray(),
             dt = dt,
-            forceLaws = forceLaws,
             forcePairs = newtonianForcePairs(10)
         ),
         stepsPerFrame = stepsPerFrame,

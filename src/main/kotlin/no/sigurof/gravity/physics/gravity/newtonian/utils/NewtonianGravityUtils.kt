@@ -140,13 +140,14 @@ internal fun forceBetweenn(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: 
 
 
 internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair<*>> {
+    val forceLaw = NewtonianForceLaw(g = 9.81f)
     val forcePairs = mutableListOf<ForcePair<NewtonianForceLaw>>()
     for (forcePair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
         forcePairs.add(
             ForcePair(
                 forcePair.first,
                 forcePair.second,
-                forceLaw = NewtonianForceLaw(g = 9.81f)
+                forceLaw = forceLaw
             )
         )
     }

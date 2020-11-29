@@ -1,6 +1,5 @@
 package no.sigurof.gravity.simulation.integration.verlet
 
-import no.sigurof.gravity.physics.ForceLaw
 import no.sigurof.gravity.physics.utils.ForcePair
 import no.sigurof.gravity.physics.utils.GeneralState
 import no.sigurof.gravity.simulation.integration.Integrator
@@ -31,7 +30,6 @@ class VerletIntegrator(
     initialPositions: Array<Vector3f>,
     initialVelocities: Array<Vector3f>,
     private val dt: Float,
-    private val forceLaws: List<ForceLaw>,
     override val forcePairs: Array<ForcePair<*>>
 ) : Integrator<VerletState> {
     private val p: List<Array<Vector3f>> = listOf(

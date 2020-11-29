@@ -57,7 +57,6 @@ class PlanetCircleGame(
                 initialVelocities = objects.map { it.v }.toTypedArray(),
                 m = objects.map { it.m }.toTypedArray(),
                 dt = dt,
-                forceLaws = listOf(newtonianPotential),
                 forcePairs = newtonianForcePairs(objects.size)
             ),
             stepsPerFrame = stepsPerFrame,
