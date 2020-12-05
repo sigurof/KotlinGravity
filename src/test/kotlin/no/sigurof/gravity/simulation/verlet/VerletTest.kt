@@ -1,14 +1,6 @@
 package no.sigurof.gravity.simulation.verlet
 
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.BehaviorSpec
-import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
-import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
-import no.sigurof.gravity.simulation.Simulation
-import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
-import org.joml.Vector3f
-
+/*
 
 internal class VerletTest : BehaviorSpec() {
     init {
@@ -45,4 +37,4 @@ internal class VerletTest : BehaviorSpec() {
             }
         }
     }
-}
+}*/

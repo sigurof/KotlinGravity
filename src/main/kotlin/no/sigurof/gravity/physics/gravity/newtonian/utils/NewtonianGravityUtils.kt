@@ -4,6 +4,7 @@ import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
 import no.sigurof.gravity.physics.utils.ForcePair
+import no.sigurof.gravity.utils.maths.combinatorics.IndexPair
 import no.sigurof.gravity.utils.maths.combinatorics.UniqueCombinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.maths.combinatorics.combinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.operators.minus
@@ -142,16 +143,35 @@ internal fun forceBetweenn(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: 
 internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair<*>> {
     val forceLaw = NewtonianForceLaw(g = 9.81f)
     val forcePairs = mutableListOf<ForcePair<NewtonianForceLaw>>()
-    for (forcePair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
+    for (indexPair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
         forcePairs.add(
             ForcePair(
-                forcePair.first,
-                forcePair.second,
+                indexPair.first,
+                indexPair.second,
                 forceLaw = forceLaw
             )
         )
     }
     return forcePairs.toTypedArray()
+}
+
+internal fun newtonianIndexPairs(numberOfObjects: Int): Array<IndexPair> {
+    val pairs = mutableListOf<IndexPair>()
+    for (indexPair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
+        pairs.add(indexPair)
+    }
+    return pairs.toTypedArray()
+}
+
+
+internal fun newtonianIndexPairs(indices: List<Int>): Array<IndexPair> {
+    return newtonianIndexPairs(indices.size)
+        .map { indexPair ->
+            val i = indexPair.first
+            val j = indexPair.second
+            IndexPair(indices[i], indices[j])
+        }
+        .toTypedArray()
 }
 
 internal fun randomDistributionAveragingTo(total: Float, n: Int): List<Float> {

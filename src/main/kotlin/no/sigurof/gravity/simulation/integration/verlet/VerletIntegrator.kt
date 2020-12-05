@@ -113,7 +113,6 @@ class VerletIntegrator(
                     vel = arrayOf(),
                     acc = a,
                     m = m
-
                 )
             )
             a[forcePair.i] += f
