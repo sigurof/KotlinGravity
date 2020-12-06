@@ -164,12 +164,13 @@ internal fun newtonianIndexPairs(numberOfObjects: Int): Array<IndexPair> {
 }
 
 
-internal fun newtonianIndexPairs(indices: List<Int>): Array<IndexPair> {
+internal fun newtonianIndexPairs(indices: Set<Int>): Array<IndexPair> {
+    val indicesList = indices.toList()
     return newtonianIndexPairs(indices.size)
         .map { indexPair ->
             val i = indexPair.first
             val j = indexPair.second
-            IndexPair(indices[i], indices[j])
+            IndexPair(indicesList[i], indicesList[j])
         }
         .toTypedArray()
 }

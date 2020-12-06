@@ -11,10 +11,10 @@ import org.joml.Vector3f
 
 class NewtonianForceLaw2(
     private val g: Float,
-    affects: List<Int>
+    affects: Set<Int>
 ) : ForceVerlet<VerletSingleBody> {
 
-    val indexPairs = newtonianIndexPairs(affects)
+    private val indexPairs = newtonianIndexPairs(affects)
 
 
     override fun calculateVerlet(state: List<VerletSingleBody>): Array<Vector3f> {

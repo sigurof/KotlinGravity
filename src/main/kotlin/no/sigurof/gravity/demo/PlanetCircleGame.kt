@@ -13,7 +13,7 @@ import no.sigurof.grajuny.node.GameObject
 import no.sigurof.grajuny.resource.material.PhongMaterial
 import no.sigurof.grajuny.utils.ORIGIN
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw2
-import no.sigurof.gravity.physics.gravity.newtonian.utils.demoSolarSystemWithMoons2
+import no.sigurof.gravity.physics.gravity.newtonian.utils.simulateASolarSystem
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -24,7 +24,7 @@ class PlanetCircleGame(
 ) : Game(window = window, background = Vector4f(0f, 0f, 0f, 1f)) {
     private var light: PointLight
     private var planetObjs: List<GameObject>
-    private var simulation: VerletSimulation
+    private var simulation: Simulator
 
     private val camera: Camera
 
@@ -44,25 +44,18 @@ class PlanetCircleGame(
         val dt = 0.01f
         val g = 0.981f
         val radius = 40f
-        val objects = demoSolarSystemWithMoons2(g = g)
-        simulation = VerletSimulation(
-            initialStates = objects,
-            dt = dt,
-            forces = listOf(
-//                ForceField(
-//                    { it.m.times(Vector3f(0f, -1f, 0f)) },
-//                    affects = objects.mapIndexed { i, _ -> i }
-//                )
-                NewtonianForceLaw2(
-                    g = 0.981f,
-                    affects = objects.indices.toList()
-                )
-            ),
-            applyConstraints = { _, defaultNewPosition ->
-                defaultNewPosition
-            },
-            stepsPerFrame = stepsPerFrame
+//        val solarModel  = demoSolarSystemWithMoons2(g = g).map {
+//            Pair(it, PerfectSphere(it.m.pow(1f / 3f) * 0.4f))
+//        }
+
+        val solarModel = simulateASolarSystem(
+            g = 9.81f,
+            numObjects = 10,
+            time = Pair(4f, 4.1f)
         )
+        val objects = solarModel.map{
+            Pair(it, PerfectSphere(it.m.pow(1f / 3f) * 0.4f))
+        }
         val redMaterial = PhongMaterial(
             ambient = RED,
             diffuse = RED,
@@ -74,9 +67,9 @@ class PlanetCircleGame(
                 SphereBillboardRenderer(
                     material = redMaterial,
                     position = ORIGIN,
-                    radius = it.m.pow(1f / 3f) * 0.4f
+                    radius = it.second.radius
                 )
-            ).at(it.r).build()
+            ).at(it.first.r).build()
         }
         root.addChild(
             GameObject.withChildren(
@@ -97,11 +90,22 @@ class PlanetCircleGame(
                 .build()
         }
 
+        simulation = Simulator(
+            dynamicObjects = objects.map { DynObj(physicalParams = it.first, shape = it.second) },
+            staticObjects = listOf(),
+            dt = 0.005f,
+            forces = listOf(
+                NewtonianForceLaw2(
+                    g = 9.81f,
+                    affects = objects.indices.toSet()
+                )
+            ),
+            stepsPerFrame = 1
+        )
     }
 
     override fun onUpdate() {
-        simulation.step()
-        val objects = simulation.getState()
+        val objects: List<MassPos> = simulation.getNextStateOfDynamicObjects()
         planetObjs.zip(objects).forEach { obj ->
             val gphxObj = obj.first
             val simObj = obj.second
@@ -111,7 +115,4 @@ class PlanetCircleGame(
 
     }
 
-    fun onCollision(state: List<VerletSingleBody>){
-        
-    }
 }

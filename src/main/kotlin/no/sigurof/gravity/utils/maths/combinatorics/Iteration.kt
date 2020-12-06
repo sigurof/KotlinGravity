@@ -47,6 +47,7 @@ internal class UniqueCombinationsOfTwoUniqueIterator(
     }
 }
 
+
 internal class UniqueCombinationsOfTwoUniqueUntil(private val max: Int) : Iterable<IndexPair> {
     override fun iterator(): Iterator<IndexPair> {
         return UniqueCombinationsOfTwoUniqueIterator(max - 1)
@@ -55,5 +56,23 @@ internal class UniqueCombinationsOfTwoUniqueUntil(private val max: Int) : Iterab
 
 internal fun combinationsOfTwoUniqueUntil(max: Int): Iterator<IndexPair> {
     return UniqueCombinationsOfTwoUniqueIterator(max - 1)
+}
+
+internal fun allCombinationsOfTwoUniqueUntil(max: Int): Array<Pair<Int, Int>> {
+    val iterator = UniqueCombinationsOfTwoUniqueIterator(max - 1)
+    val allCombinations = Array((max - 1) * max / 2) { Pair(0, 0) }
+    var i = 0
+    for (pair in iterator) {
+        allCombinations[i] = pair
+        i++
+    }
+    return allCombinations
+}
+
+internal fun combinationsOf(numbers: Set<Int>): List<Pair<Int, Int>> {
+    val numbersList = numbers.toList()
+    return allCombinationsOfTwoUniqueUntil(numbers.size)
+        .map { pair -> Pair(numbersList[pair.first], numbersList[pair.second]) }
+
 }
 
