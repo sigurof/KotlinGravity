@@ -78,7 +78,7 @@ class PlanetCircleGame(
         )
         camera = SpaceShipCamera(
             window = window,
-//            parent = planetObjs.first(),
+//            parent = planetObjs.first()
             at = Vector3f(5f, 5f, 5f),
             lookAt = ORIGIN
         )
