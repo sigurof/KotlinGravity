@@ -12,6 +12,8 @@ import no.sigurof.grajuny.light.phong.PointLight
 import no.sigurof.grajuny.node.GameObject
 import no.sigurof.grajuny.resource.material.PhongMaterial
 import no.sigurof.grajuny.utils.ORIGIN
+import no.sigurof.gravity.physics.data.MassPosVel
+import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw2
 import no.sigurof.gravity.physics.gravity.newtonian.utils.simulateASolarSystem
 import org.joml.Matrix4f
@@ -24,7 +26,7 @@ class PlanetCircleGame(
 ) : Game(window = window, background = Vector4f(0f, 0f, 0f, 1f)) {
     private var light: PointLight
     private var planetObjs: List<GameObject>
-    private var simulation: Simulator
+    private var simulation: SimulationEngine
 
     private val camera: Camera
 
@@ -40,21 +42,19 @@ class PlanetCircleGame(
             specular = WHITE
         )
         LightManager.LIGHT_SOURCES.add(light)
-        val stepsPerFrame = 5
-        val dt = 0.01f
-        val g = 0.981f
-        val radius = 40f
-//        val solarModel  = demoSolarSystemWithMoons2(g = g).map {
-//            Pair(it, PerfectSphere(it.m.pow(1f / 3f) * 0.4f))
-//        }
 
         val solarModel = simulateASolarSystem(
             g = 9.81f,
-            numObjects = 10,
-            time = Pair(4f, 4.1f)
+            numObjects = 30,
+            time = Pair(4f, 41f)
         )
-        val objects = solarModel.map{
-            Pair(it, PerfectSphere(it.m.pow(1f / 3f) * 0.4f))
+        val objects = solarModel.map {
+            Pair(
+                it, PerfectSphere(
+                    radius = it.m.pow(1f / 3f) * 0.4f,
+                    center = Vector3f()
+                )
+            )
         }
         val redMaterial = PhongMaterial(
             ambient = RED,
@@ -69,7 +69,7 @@ class PlanetCircleGame(
                     position = ORIGIN,
                     radius = it.second.radius
                 )
-            ).at(it.first.r).build()
+            ).at(it.second.center).build()
         }
         root.addChild(
             GameObject.withChildren(
@@ -78,21 +78,28 @@ class PlanetCircleGame(
         )
         camera = SpaceShipCamera(
             window = window,
-            parent = planetObjs.first(),
+//            parent = planetObjs.first(),
             at = Vector3f(5f, 5f, 5f),
             lookAt = ORIGIN
         )
-        planetObjs.forEach {
+        planetObjs.zip(objects).forEach {
             TraceRenderer.Builder(
                 color = WHITE,
-                numberOfPoints = 1000
-            ).attachTo(it)
+                numberOfPoints = 1000,
+                firstPos = it.second.second.center
+            ).attachTo(it.first)
                 .build()
         }
 
-        simulation = Simulator(
-            dynamicObjects = objects.map { DynObj(physicalParams = it.first, shape = it.second) },
-            staticObjects = listOf(),
+        simulation = SimulationEngine(
+            entities = objects.map {
+                SimulationEntity(
+                    m = it.first.m,
+                    geometry = it.second,
+                    vel = it.first.v,
+                    pos = it.first.r
+                )
+            },
             dt = 0.005f,
             forces = listOf(
                 NewtonianForceLaw2(
@@ -104,8 +111,25 @@ class PlanetCircleGame(
         )
     }
 
+    private fun twoColliding(): List<MassPosVel> {
+        return listOf(
+            PointMass(
+                m = 1f,
+                r = Vector3f(2f, 0f, 0f),
+                v = Vector3f(-1f, 0f, 0f)
+            ),
+            PointMass(
+                m = 1f,
+                r = Vector3f(-2f, 0f, 0f),
+                v = Vector3f(1f, 0f, 0f)
+            )
+
+        )
+
+    }
+
     override fun onUpdate() {
-        val objects: List<MassPos> = simulation.getNextStateOfDynamicObjects()
+        val objects: List<MassPos> = simulation.getNextState()
         planetObjs.zip(objects).forEach { obj ->
             val gphxObj = obj.first
             val simObj = obj.second

@@ -1,6 +1,6 @@
 package no.sigurof.gravity.demo
 
-class Collision(
+class Intersection(
     val idOne: Int,
     val idOther: Int
 ) {
@@ -9,8 +9,8 @@ class Collision(
         var idOne: Int? = null,
         var idOther: Int? = null
     ) {
-        fun build(): Collision {
-            return Collision(
+        fun build(): Intersection {
+            return Intersection(
                 idOne = idOne?: error("Expected idOne to be set."),
                 idOther = idOther?: error("Expected idOther to be set.")
             )

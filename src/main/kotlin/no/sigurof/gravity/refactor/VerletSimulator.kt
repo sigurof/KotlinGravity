@@ -2,32 +2,40 @@ package no.sigurof.gravity.demo
 
 import no.sigurof.gravity.simulation.integration.utils.deltaPositionEuler
 import no.sigurof.gravity.simulation.integration.utils.deltaPositionVerlet
+import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
 import org.joml.Vector3f
 
+class VerletInitialState(
+    val pos: Vector3f,
+    val vel: Vector3f,
+    val m: Float
+)
 
 class VerletSimulator(
-    initialStates: List<DynObj>,
+    initialStates: List<VerletInitialState>,
     val dt: Float,
     val forces: List<ForceVerlet<VerletSingleBody>>,
     private val stepsPerFrame: Int
 ) {
 
     var t = 0f
-    private var iterator: () -> Unit = ::firstIteration
-    private val p: List<Array<Vector3f>> = listOf(
-        initialStates.map { it.physicalParams.r }.toTypedArray(),
+    private var iterator: () -> Unit = ::eulerIteration
+    private var p: MutableList<Array<Vector3f>> = mutableListOf(
+        initialStates.map { it.pos }.toTypedArray(),
         Array(initialStates.size) { Vector3f(0f, 0f, 0f) }
     )
-    private val initialVelocities = initialStates.map { it.physicalParams.v }.toTypedArray()
-    private val a = Array(initialStates.size) { Vector3f(0f, 0f, 0f) }
-    private val m = initialStates.map { it.physicalParams.m }.toTypedArray()
+    private var initialVelocities = initialStates.map { it.vel }.toTypedArray()
+    private var a = Array(initialStates.size) { Vector3f(0f, 0f, 0f) }
+    var m = initialStates.map { it.m }.toTypedArray()
     private var newPosIndex = 1
     private var lastPosIndex = 0
     private var indexTemp: Int = 0
+    private var hasSetVelocity = true
 
 
-    private fun step() {
+    fun step() {
+        prepare()
         for (i in 0 until stepsPerFrame) {
             updateAcceleration()
             updatePosition()
@@ -35,12 +43,15 @@ class VerletSimulator(
         }
     }
 
-    fun getNextPositions(): Array<Vector3f> {
-        step()
-        return getPositions()
+    private fun prepare() {
+        if (hasSetVelocity) {
+            iterator = ::eulerIteration
+        }
     }
 
-    private fun getPositions(): Array<Vector3f> = p[lastPosIndex]
+
+    fun getPositions(): Array<Vector3f> = p[lastPosIndex]
+
 
     private fun getState(): List<VerletSingleBody> = m.mapIndexed { i, mass ->
         VerletSingleBody(
@@ -49,7 +60,6 @@ class VerletSimulator(
             a[i]
         )
     }
-
 
     private fun updateAcceleration() {
         zeroOutAccelerations()
@@ -75,12 +85,12 @@ class VerletSimulator(
         }
     }
 
+
     private fun zeroOutAccelerations() {
         for (i in a.indices) {
             a[i] = Vector3f(0f, 0f, 0f)
         }
     }
-
 
     private fun updatePosition() {
         iterator.invoke()
@@ -97,18 +107,44 @@ class VerletSimulator(
         t += dt
     }
 
-    private fun firstIteration() {
+    private fun eulerIteration() {
         for (i in a.indices) {
             p[newPosIndex][i] = p[lastPosIndex][i] + deltaPositionEuler(initialVelocities[i], a[i], dt)
         }
-        iterator = ::iteration
+        iterator = ::verletIteration
+        hasSetVelocity = false
     }
 
-    private fun iteration() {
+    private fun verletIteration() {
         for (i in a.indices) {
-            p[newPosIndex][i] =
-                p[lastPosIndex][i] + deltaPositionVerlet(p[lastPosIndex][i], p[newPosIndex][i], a[i], dt)
+            p[newPosIndex][i] = p[lastPosIndex][i] + deltaPositionVerlet(p[lastPosIndex][i], p[newPosIndex][i], a[i], dt)
         }
     }
+
+    fun getVelocity(id: Int): Vector3f =
+        (p[lastPosIndex][id] - p[newPosIndex][id]) / dt
+
+
+    fun setVelocity(id: Int, vel: Vector3f) {
+        if (!hasSetVelocity) {
+            p[newPosIndex].zip(p[lastPosIndex])
+                .forEachIndexed { i, it ->
+                    val v = (it.second - it.first) / dt
+                    initialVelocities[i] = v
+                }
+            hasSetVelocity = true
+        }
+        initialVelocities[id] = vel
+    }
+
+    fun setVelocity(velocities: List<Vector3f>) {
+        hasSetVelocity = true
+        initialVelocities = velocities.toTypedArray()
+    }
+
+    fun setPositions(newPositions: List<Vector3f>) {
+        p[lastPosIndex] = newPositions.toTypedArray()
+    }
+
 
 }
