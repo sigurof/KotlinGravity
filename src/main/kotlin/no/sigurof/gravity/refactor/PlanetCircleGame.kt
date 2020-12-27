@@ -29,6 +29,7 @@ import kotlin.math.pow
 * Clean up code
 * enable static objects
 * enable other object types, like quads, perfect planes, etc.
+* Fix erroneous velocity on mid-timestep collisions
 * collision handling: colliding objects merge
 * enable angular momentum - collision detection between rotating objects
 * change colors based on velocity

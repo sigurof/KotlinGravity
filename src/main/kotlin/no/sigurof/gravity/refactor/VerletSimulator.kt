@@ -2,7 +2,6 @@ package no.sigurof.gravity.demo
 
 import no.sigurof.gravity.simulation.integration.utils.deltaPositionEuler
 import no.sigurof.gravity.simulation.integration.utils.deltaPositionVerlet
-import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
 import org.joml.Vector3f
 
@@ -56,8 +55,7 @@ class VerletSimulator(
     private fun getState(): List<VerletSingleBody> = m.mapIndexed { i, mass ->
         VerletSingleBody(
             mass,
-            p[lastPosIndex][i],
-            a[i]
+            p[lastPosIndex][i]
         )
     }
 
@@ -119,22 +117,6 @@ class VerletSimulator(
         for (i in a.indices) {
             p[newPosIndex][i] = p[lastPosIndex][i] + deltaPositionVerlet(p[lastPosIndex][i], p[newPosIndex][i], a[i], dt)
         }
-    }
-
-    fun getVelocity(id: Int): Vector3f =
-        (p[lastPosIndex][id] - p[newPosIndex][id]) / dt
-
-
-    fun setVelocity(id: Int, vel: Vector3f) {
-        if (!hasSetVelocity) {
-            p[newPosIndex].zip(p[lastPosIndex])
-                .forEachIndexed { i, it ->
-                    val v = (it.second - it.first) / dt
-                    initialVelocities[i] = v
-                }
-            hasSetVelocity = true
-        }
-        initialVelocities[id] = vel
     }
 
     fun setVelocities(velocities: List<Vector3f>) {
