@@ -1,7 +1,5 @@
-package no.sigurof.gravity.physics.gravity.newtonian.force
+package no.sigurof.gravity.refactor2
 
-import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.normalized
 import org.joml.Vector3f
 
 internal fun forceBetween(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: Float): Vector3f {

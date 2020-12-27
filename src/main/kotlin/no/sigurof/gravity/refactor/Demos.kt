@@ -1,43 +1,10 @@
 package no.sigurof.gravity.demo
 
-import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.gravity.newtonian.utils.GravityNode
-import no.sigurof.gravity.physics.gravity.newtonian.utils.buildRandomGravityNode
-import no.sigurof.gravity.utils.randomFloatBetween
+import no.sigurof.gravity.refactor2.GravityNode
+import no.sigurof.gravity.refactor2.MassPosVel
+import no.sigurof.gravity.refactor2.buildRandomGravityNode
+import no.sigurof.gravity.refactor2.randomFloatBetween
 import org.joml.Vector3f
-
-
-/*
-fun demoSolarSystem() {
-    val g = 0.981f
-    val objects = simulateASolarSystem(g = g)
-    val newtonianPotential = NewtonianForceLaw(
-        g = g
-    )
-    simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential)),
-    forcePairs = newtonianForcePairs(objects.size)
-}
-
-fun demoSolarSystemAndMoons() {
-    val g = 0.981f
-    val objects = demoSolarSystemWithMoons1(g = g)
-    val newtonianPotential = NewtonianForceLaw(
-        g = g,
-        forcePairs = newtonianForcePairs(objects.size)
-    )
-    simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential))
-}
-
-fun demoCircleOfPlanets() {
-    val g = 0.981f
-    val objects = generateCircleOfPlanets(g = g, numberOfPlanetPairs = 10, radius = 2f)
-    val newtonianPotential = NewtonianForceLaw(
-        g = g,
-        forcePairs = newtonianForcePairs(objects.size)
-    )
-    simulateVerletAndVisualize(g = g, objects = objects, forceLaws = listOf(newtonianPotential))
-}
-*/
 
 fun demoStarWithManySatellites(n: Int): List<MassPosVel> {
     val g = 0.981f

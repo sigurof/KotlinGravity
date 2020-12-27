@@ -1,4 +1,4 @@
-package no.sigurof.gravity.utils
+package no.sigurof.gravity.refactor2
 
 import org.joml.Vector3f
 import kotlin.math.PI

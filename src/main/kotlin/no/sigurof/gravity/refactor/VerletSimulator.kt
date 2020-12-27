@@ -1,8 +1,6 @@
 package no.sigurof.gravity.demo
 
-import no.sigurof.gravity.simulation.integration.utils.deltaPositionEuler
-import no.sigurof.gravity.simulation.integration.utils.deltaPositionVerlet
-import no.sigurof.gravity.utils.operators.plus
+import no.sigurof.gravity.refactor2.*
 import org.joml.Vector3f
 
 class VerletInitialState(
@@ -18,7 +16,7 @@ class VerletSimulator(
     private val stepsPerFrame: Int
 ) {
 
-    var t = 0f
+    private var t = 0f
     private var iterator: () -> Unit = ::eulerIteration
     private var p: MutableList<Array<Vector3f>> = mutableListOf(
         initialStates.map { it.pos }.toTypedArray(),

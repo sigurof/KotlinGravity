@@ -8,7 +8,7 @@ interface Integrator {
 
     fun updateVelocity()
     fun handle(event: Event)
-    fun getState(): List<MassPos2>
+    fun getState(): List<MassPos>
     var v: List<Vector3f>
     var p: List<Vector3f>
     var radii: MutableList<Float>

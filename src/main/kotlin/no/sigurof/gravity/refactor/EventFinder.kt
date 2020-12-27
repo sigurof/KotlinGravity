@@ -1,6 +1,5 @@
 package no.sigurof.gravity.refactor2
 
-import no.sigurof.gravity.utils.operators.minus
 import org.joml.Vector3f
 import kotlin.math.max
 import kotlin.math.min

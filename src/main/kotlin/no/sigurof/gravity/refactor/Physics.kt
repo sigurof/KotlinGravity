@@ -1,8 +1,8 @@
 package no.sigurof.gravity.demo
 
-import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.plus
-import no.sigurof.gravity.utils.operators.times
+import no.sigurof.gravity.refactor2.minus
+import no.sigurof.gravity.refactor2.plus
+import no.sigurof.gravity.refactor2.times
 import org.joml.Vector3f
 
 object Collisions {
@@ -14,7 +14,6 @@ object Collisions {
             val r: Vector3f,
             val v: Vector3f
         )
-
 
         fun sphereOnSphere(p1: Particle, p2: Particle): Pair<Vector3f, Vector3f> {
             val avgMass = (p1.m + p2.m) / 2f

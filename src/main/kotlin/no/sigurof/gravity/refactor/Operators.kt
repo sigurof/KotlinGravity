@@ -1,4 +1,4 @@
-package no.sigurof.gravity.utils.operators
+package no.sigurof.gravity.refactor2
 
 import org.joml.Vector3f
 
@@ -31,7 +31,7 @@ fun Vector3f.normalized(): Vector3f {
     return this.normalize(Vector3f())
 }
 
-public operator fun Float.times(v: Vector3f): Vector3f {
+operator fun Float.times(v: Vector3f): Vector3f {
     return v.times(this)
 }
 

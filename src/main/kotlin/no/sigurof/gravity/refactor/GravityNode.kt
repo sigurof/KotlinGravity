@@ -1,8 +1,5 @@
-package no.sigurof.gravity.physics.gravity.newtonian.utils
+package no.sigurof.gravity.refactor2
 
-import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.utils.operators.plus
 import org.joml.Vector3f
 import kotlin.random.Random
 
@@ -69,7 +66,7 @@ internal fun buildRandomGravityNode(
         mass = sunMass,
         satellites = planets,
         period = sunT,
-        eccentricity = no.sigurof.gravity.utils.randomFloatBetween(
+        eccentricity = randomFloatBetween(
             eccentricityBetween.first,
             eccentricityBetween.second
         )

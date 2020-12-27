@@ -1,4 +1,4 @@
-package no.sigurof.gravity.demo
+package no.sigurof.gravity.refactor2
 
 import no.sigurof.grajuny.camera.Camera
 import no.sigurof.grajuny.camera.impl.SpaceShipCamera
@@ -12,12 +12,7 @@ import no.sigurof.grajuny.light.phong.PointLight
 import no.sigurof.grajuny.node.GameObject
 import no.sigurof.grajuny.resource.material.PhongMaterial
 import no.sigurof.grajuny.utils.ORIGIN
-import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw2
-import no.sigurof.gravity.physics.gravity.newtonian.utils.simulateASolarSystem
-import no.sigurof.gravity.refactor2.*
-import no.sigurof.gravity.utils.maths.combinatorics.allCombinationsOfTwoUniqueUntil
+import no.sigurof.gravity.demo.PerfectSphere
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -43,7 +38,7 @@ class PlanetCircleGame(
 ) : Game(window = window, background = Vector4f(0f, 0f, 0f, 1f)) {
     private var light: PointLight
     private var planetObjs: List<GameObject>
-    private var simulation: SimulationEngine2
+    private var simulation: SimulationEngine
 
     private val camera: Camera
 
@@ -60,6 +55,7 @@ class PlanetCircleGame(
         )
         LightManager.LIGHT_SOURCES.add(light)
 
+//        val solarModel = demoSolarSystemWithMoons2()
         val solarModel = simulateASolarSystem(
             msun = 2000f,
             g = 9.81f,
@@ -110,10 +106,10 @@ class PlanetCircleGame(
                 .build()
         }
 
-        simulation = SimulationEngine2(
+        simulation = SimulationEngine(
             integrator = VerletIntegrator(
                 entities = objects.map {
-                    SimulationEntity2(
+                    SimulationEntity(
                         m = it.first.m,
                         geometry = it.second,
                         vel = it.first.v,
@@ -122,7 +118,7 @@ class PlanetCircleGame(
                 },
                 dt = 0.001f,
                 forces = listOf(
-                    NewtonianForceLaw2(
+                    NewtonianForceLaw(
                         g = 9.81f,
                         affects = objects.indices.toSet()
                     )
@@ -152,7 +148,7 @@ class PlanetCircleGame(
     }
 
     override fun onUpdate() {
-        val objects: List<MassPos2> = simulation.getNextState()
+        val objects: List<MassPos> = simulation.getNextState()
         planetObjs.zip(objects).forEach { obj ->
             val gphxObj = obj.first
             val simObj = obj.second

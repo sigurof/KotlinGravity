@@ -1,7 +1,7 @@
 package no.sigurof.gravity
 
 import no.sigurof.grajuny.engine.CoreEngine
-import no.sigurof.gravity.demo.PlanetCircleGame
+import no.sigurof.gravity.refactor2.PlanetCircleGame
 
 /* Necessary features
 - Normalized coordinates to verlet simulation

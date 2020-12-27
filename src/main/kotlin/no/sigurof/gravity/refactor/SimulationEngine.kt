@@ -1,7 +1,7 @@
 package no.sigurof.gravity.refactor2
 
 
-class SimulationEngine2(
+class SimulationEngine(
     private val integrator: Integrator,
     private val eventFinder: EventFinder
 ) {
@@ -17,12 +17,12 @@ class SimulationEngine2(
         } while (integrator.time < stopTime) // while integrator.isBetweenTimesteps()
     }
 
-    fun getNextState(): List<MassPos2> {
+    fun getNextState(): List<MassPos> {
         step()
         return getState()
     }
 
-    private fun getState(): List<MassPos2> {
+    private fun getState(): List<MassPos> {
         return integrator.getState()
     }
 }

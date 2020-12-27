@@ -1,12 +1,6 @@
-package no.sigurof.gravity.physics.gravity.newtonian.utils
+package no.sigurof.gravity.refactor2
 
 import no.sigurof.grajuny.utils.randomFloatBetween
-import no.sigurof.gravity.physics.data.MassPosVel
-import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.normalized
-import no.sigurof.gravity.utils.operators.plus
-import no.sigurof.gravity.utils.operators.times
 import org.joml.Vector3f
 import kotlin.math.*
 

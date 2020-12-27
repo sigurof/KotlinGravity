@@ -1,15 +1,9 @@
-package no.sigurof.gravity.physics.gravity.newtonian
+package no.sigurof.gravity.refactor2
 
-import no.sigurof.gravity.demo.ForceVerlet
-import no.sigurof.gravity.demo.VerletSingleBody
-import no.sigurof.gravity.physics.gravity.newtonian.force.forceBetween
-import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianIndexPairs
-import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.plus
 import org.joml.Vector3f
 
 
-class NewtonianForceLaw2(
+class NewtonianForceLaw(
     private val g: Float,
     affects: Set<Int>
 ) : ForceVerlet<VerletSingleBody> {
@@ -24,7 +18,6 @@ class NewtonianForceLaw2(
             val j = indexPair.second
             val f = forceBetween(
                 state[i].r, state[j].r, state[i].m, state[j].m, g
-
             )
             forces[indexPair.first] += f
             forces[indexPair.second] -= f

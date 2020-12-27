@@ -1,4 +1,4 @@
-package no.sigurof.gravity.utils.maths.combinatorics
+package no.sigurof.gravity.refactor2
 
 typealias IndexPair = Pair<Int, Int>
 

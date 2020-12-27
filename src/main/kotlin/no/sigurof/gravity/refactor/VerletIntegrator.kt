@@ -1,17 +1,12 @@
 package no.sigurof.gravity.refactor2
 
-import no.sigurof.gravity.demo.ForceVerlet
 import no.sigurof.gravity.demo.VerletInitialState
 import no.sigurof.gravity.demo.VerletSimulator
-import no.sigurof.gravity.demo.VerletSingleBody
-import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.plus
-import no.sigurof.gravity.utils.operators.times
 import org.joml.Vector3f
 
 class VerletIntegrator(
     override val dt: Float,
-    entities: List<SimulationEntity2>,
+    entities: List<SimulationEntity>,
     forces: List<ForceVerlet<VerletSingleBody>>
 ) : Integrator {
     override var radii = entities.map { it.geometry.radius }.toMutableList()
@@ -50,11 +45,11 @@ class VerletIntegrator(
     override var v: List<Vector3f> = simulator.initialVelocities.toList()
     override var p: List<Vector3f> = simulator.getPositions().toList()
 
-    override fun getState(): List<MassPos2> {
+    override fun getState(): List<MassPos> {
         return simulator
             .getPositions()
             .zip(simulator.m)
-            .map { MassPos2(m = it.second, r = it.first) }
+            .map { MassPos(m = it.second, r = it.first) }
     }
 
     override fun handle(event: Event) {
