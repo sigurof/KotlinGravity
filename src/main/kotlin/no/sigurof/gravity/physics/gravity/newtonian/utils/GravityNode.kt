@@ -12,7 +12,7 @@ class GravityNode(
     val period: Float,
     val eccentricity: Float
 ) {
-    val totalMass: Float
+    private val totalMass: Float
         get() = mass + satellites.map { it.totalMass }.sum()
 
     fun buildPlanets(

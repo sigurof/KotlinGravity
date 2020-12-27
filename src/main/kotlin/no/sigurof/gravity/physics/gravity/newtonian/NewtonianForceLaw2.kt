@@ -2,7 +2,7 @@ package no.sigurof.gravity.physics.gravity.newtonian
 
 import no.sigurof.gravity.demo.ForceVerlet
 import no.sigurof.gravity.demo.VerletSingleBody
-import no.sigurof.gravity.physics.gravity.newtonian.utils.forceBetweenn
+import no.sigurof.gravity.physics.gravity.newtonian.force.forceBetween
 import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianIndexPairs
 import no.sigurof.gravity.utils.operators.minus
 import no.sigurof.gravity.utils.operators.plus
@@ -22,7 +22,7 @@ class NewtonianForceLaw2(
         for (indexPair in indexPairs) {
             val i = indexPair.first
             val j = indexPair.second
-            val f = forceBetweenn(
+            val f = forceBetween(
                 state[i].r, state[j].r, state[i].m, state[j].m, g
 
             )

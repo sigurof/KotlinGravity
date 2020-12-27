@@ -2,13 +2,10 @@ package no.sigurof.gravity.physics.gravity.newtonian.utils
 
 import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
-import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
-import no.sigurof.gravity.physics.utils.ForcePair
 import no.sigurof.gravity.utils.maths.combinatorics.IndexPair
 import no.sigurof.gravity.utils.maths.combinatorics.UniqueCombinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.maths.combinatorics.combinationsOfTwoUniqueUntil
 import no.sigurof.gravity.utils.operators.minus
-import no.sigurof.gravity.utils.operators.normalized
 import no.sigurof.gravity.utils.operators.plus
 import no.sigurof.gravity.utils.operators.times
 import no.sigurof.gravity.utils.randomAngle
@@ -131,28 +128,6 @@ fun kineticEnergyOf(body: MassPosVel): Float {
 
 fun potentialEnergyBetween(body1: MassPosVel, body2: MassPosVel, g: Float): Float {
     return -g * body1.m * body2.m / (body1.r - body2.r).length()
-}
-
-internal fun forceBetweenn(r1: Vector3f, r2: Vector3f, m1: Float, m2: Float, g: Float): Vector3f {
-    val r12 = r2 - r1
-    val d = r12.normalized() / r12.lengthSquared()
-    return g * m1 * m2 * d
-}
-
-
-internal fun newtonianForcePairs(numberOfObjects: Int): Array<ForcePair<*>> {
-    val forceLaw = NewtonianForceLaw(g = 9.81f)
-    val forcePairs = mutableListOf<ForcePair<NewtonianForceLaw>>()
-    for (indexPair in combinationsOfTwoUniqueUntil(numberOfObjects)) {
-        forcePairs.add(
-            ForcePair(
-                indexPair.first,
-                indexPair.second,
-                forceLaw = forceLaw
-            )
-        )
-    }
-    return forcePairs.toTypedArray()
 }
 
 internal fun newtonianIndexPairs(numberOfObjects: Int): Array<IndexPair> {

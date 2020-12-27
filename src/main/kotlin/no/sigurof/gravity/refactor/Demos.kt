@@ -59,7 +59,6 @@ fun demoStarWithManySatellites(n: Int): List<MassPosVel> {
         baryPos = Vector3f(0f, 0f, 0f),
         baryVel = Vector3f(0f, 0f, 0f)
     )
-
 }
 
 fun demoRandomGravityNode(): List<MassPosVel> {
