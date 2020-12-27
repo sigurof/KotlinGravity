@@ -1,4 +1,4 @@
-package no.sigurof.gravity.refactor2
+package no.sigurof.phyzigur.refactor
 
 import no.sigurof.grajuny.camera.Camera
 import no.sigurof.grajuny.camera.impl.SpaceShipCamera
@@ -12,7 +12,7 @@ import no.sigurof.grajuny.light.phong.PointLight
 import no.sigurof.grajuny.node.GameObject
 import no.sigurof.grajuny.resource.material.PhongMaterial
 import no.sigurof.grajuny.utils.ORIGIN
-import no.sigurof.gravity.demo.PerfectSphere
+import no.sigurof.phyzigur.demo.PerfectSphere
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -28,7 +28,7 @@ import kotlin.math.pow
 * collision handling: colliding objects merge
 * enable angular momentum - collision detection between rotating objects
 * change colors based on velocity
-* test other forces than gravity
+* test other forces than phyzigur
 * speedup recalculating of collisions within timestep by only recalculating collisions involving the two outgoing particles from the first collision
 * */
 

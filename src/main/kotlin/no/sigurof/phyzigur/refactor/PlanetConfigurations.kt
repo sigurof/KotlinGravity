@@ -1,4 +1,4 @@
-package no.sigurof.gravity.refactor2
+package no.sigurof.phyzigur.refactor
 
 import no.sigurof.grajuny.utils.randomFloatBetween
 import org.joml.Vector3f

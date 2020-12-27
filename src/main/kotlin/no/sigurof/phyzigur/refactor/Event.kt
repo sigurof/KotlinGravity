@@ -1,6 +1,6 @@
-package no.sigurof.gravity.refactor2
+package no.sigurof.phyzigur.refactor
 
-import no.sigurof.gravity.demo.Collisions
+import no.sigurof.phyzigur.demo.Collisions
 
 interface Event {
     val time: Float

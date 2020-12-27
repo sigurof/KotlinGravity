@@ -1,9 +1,9 @@
-package no.sigurof.gravity.demo
+package no.sigurof.phyzigur.demo
 
-import no.sigurof.gravity.refactor2.GravityNode
-import no.sigurof.gravity.refactor2.MassPosVel
-import no.sigurof.gravity.refactor2.buildRandomGravityNode
-import no.sigurof.gravity.refactor2.randomFloatBetween
+import no.sigurof.phyzigur.refactor.GravityNode
+import no.sigurof.phyzigur.refactor.MassPosVel
+import no.sigurof.phyzigur.refactor.buildRandomGravityNode
+import no.sigurof.phyzigur.refactor.randomFloatBetween
 import org.joml.Vector3f
 
 fun demoStarWithManySatellites(n: Int): List<MassPosVel> {

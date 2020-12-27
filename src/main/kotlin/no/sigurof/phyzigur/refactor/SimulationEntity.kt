@@ -1,6 +1,6 @@
-package no.sigurof.gravity.refactor2
+package no.sigurof.phyzigur.refactor
 
-import no.sigurof.gravity.demo.PerfectSphere
+import no.sigurof.phyzigur.demo.PerfectSphere
 import org.joml.Vector3f
 
 class SimulationEntity(

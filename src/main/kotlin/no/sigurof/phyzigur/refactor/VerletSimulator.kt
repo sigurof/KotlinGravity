@@ -1,6 +1,6 @@
-package no.sigurof.gravity.demo
+package no.sigurof.phyzigur.demo
 
-import no.sigurof.gravity.refactor2.*
+import no.sigurof.phyzigur.refactor.*
 import org.joml.Vector3f
 
 class VerletInitialState(

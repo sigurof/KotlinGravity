@@ -1,8 +1,8 @@
-package no.sigurof.gravity.demo
+package no.sigurof.phyzigur.demo
 
-import no.sigurof.gravity.refactor2.minus
-import no.sigurof.gravity.refactor2.plus
-import no.sigurof.gravity.refactor2.times
+import no.sigurof.phyzigur.refactor.minus
+import no.sigurof.phyzigur.refactor.plus
+import no.sigurof.phyzigur.refactor.times
 import org.joml.Vector3f
 
 object Collisions {
