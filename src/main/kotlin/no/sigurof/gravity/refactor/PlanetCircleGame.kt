@@ -16,10 +16,8 @@ import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw2
 import no.sigurof.gravity.physics.gravity.newtonian.utils.simulateASolarSystem
-import no.sigurof.gravity.refactor2.MassPos2
-import no.sigurof.gravity.refactor2.SimulationEngine2
-import no.sigurof.gravity.refactor2.SimulationEntity2
-import no.sigurof.gravity.refactor2.VerletIntegrator
+import no.sigurof.gravity.refactor2.*
+import no.sigurof.gravity.utils.maths.combinatorics.allCombinationsOfTwoUniqueUntil
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
@@ -62,10 +60,12 @@ class PlanetCircleGame(
         LightManager.LIGHT_SOURCES.add(light)
 
         val solarModel = simulateASolarSystem(
+            msun = 2000f,
             g = 9.81f,
-            numObjects = 30,
-            time = Pair(4f, 41f)
+            numObjects = 100,
+            time = Pair(4f, 4.1f)
         )
+//        val solarModel = twoColliding()
         val objects = solarModel.map {
             Pair(
                 it, PerfectSphere(
@@ -96,7 +96,7 @@ class PlanetCircleGame(
         )
         camera = SpaceShipCamera(
             window = window,
-//            parent = planetObjs.first()
+            parent = planetObjs.first(),
             at = Vector3f(5f, 5f, 5f),
             lookAt = ORIGIN
         )
@@ -119,13 +119,16 @@ class PlanetCircleGame(
                         pos = it.first.r
                     )
                 },
-                dt = 0.005f,
+                dt = 0.001f,
                 forces = listOf(
                     NewtonianForceLaw2(
                         g = 9.81f,
                         affects = objects.indices.toSet()
                     )
                 )
+            ),
+            eventFinder = MyEventFinder(
+                collisionIndexPairs = allCombinationsOfTwoUniqueUntil(objects.size).toMutableList()
             )
         )
     }
@@ -133,14 +136,14 @@ class PlanetCircleGame(
     private fun twoColliding(): List<MassPosVel> {
         return listOf(
             PointMass(
-                m = 1f,
-                r = Vector3f(2f, 0f, 0f),
-                v = Vector3f(-1f, 0f, 1f)
+                m = 100f,
+                r = Vector3f(0f, 0f, 0f),
+                v = Vector3f(0f, -0.11f, 0f)
             ),
             PointMass(
                 m = 1f,
-                r = Vector3f(-2f, 0f, 0f),
-                v = Vector3f(1f, 0f, 0f)
+                r = Vector3f(10f, 0f, 0f),
+                v = Vector3f(0f, 11f, 0f)
             )
 
         )
@@ -155,7 +158,6 @@ class PlanetCircleGame(
             gphxObj.transform = Matrix4f().translate(simObj.r)
         }
         light.position.set(planetObjs.last().getPosition())
-
     }
 
 }

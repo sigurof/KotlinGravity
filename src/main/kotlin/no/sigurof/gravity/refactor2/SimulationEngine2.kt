@@ -21,37 +21,45 @@ interface Event {
 }
 
 class EndTimestep(override val time: Float) : Event {
-    override fun handle(integrator: Integrator) {}
+    override fun handle(integrator: Integrator) {
+
+    }
 }
 
-//class SphereSphereCollision(override  val time: Float) : Event{
-//
-//    override fun handle(integrator: Integrator) {
-//
-//        val (v1, v2) = Collisions.Elastic.sphereOnSphere(
-//            Collisions.Elastic.Particle(
-//                m = integrator.masses[collision.i1],
-//                r = newPositions[collision.i1],
-//                v = velocities[collision.i1]
-//            ),
-//            Collisions.Elastic.Particle(
-//                m = masses[collision.i2],
-//                r = newPositions[collision.i2],
-//                v = velocities[collision.i2]
-//            )
-//        )
-//
-//    }
-//
-//}
+class SphereSphereCollision(override val time: Float, val i1: Int, val i2: Int) : Event {
+
+    override fun handle(integrator: Integrator) {
+
+        val (v1, v2) = Collisions.Elastic.sphereOnSphere(
+            Collisions.Elastic.Particle(
+                m = integrator.m[i1],
+                r = integrator.p[i1],
+                v = integrator.v[i1]
+            ),
+            Collisions.Elastic.Particle(
+                m = integrator.m[i2],
+                r = integrator.p[i2],
+                v = integrator.v[i2]
+            )
+        )
+        integrator.setVel(i1, v1)
+        integrator.setVel(i2, v2)
+    }
+
+}
 
 interface Integrator {
     val time: Float
     val dt: Float
 
-    fun findV()
+    fun updateVelocity()
     fun handle(event: Event)
     fun getState(): List<MassPos2>
+    var v: List<Vector3f>
+    var p: List<Vector3f>
+    var radii: MutableList<Float>
+    var m: List<Float>
+    fun setVel(index: Int, value: Vector3f)
 }
 
 class VerletIntegrator(
@@ -59,6 +67,16 @@ class VerletIntegrator(
     entities: List<SimulationEntity2>,
     forces: List<ForceVerlet<VerletSingleBody>>
 ) : Integrator {
+    override var radii = entities.map { it.geometry.radius }.toMutableList()
+    override var m: List<Float> = entities.map { it.m }
+
+    override fun setVel(index: Int, value: Vector3f) {
+        val vmut = v.toMutableList()
+        vmut[index] = value
+        v = vmut.toList()
+        simulator.setVelocities(v)
+    }
+
     private val simulator: VerletSimulator = VerletSimulator(
         initialStates = entities.map {
             VerletInitialState(
@@ -73,17 +91,17 @@ class VerletIntegrator(
     )
     override var time: Float = 0f
 
-    override fun findV() {
+    override fun updateVelocity() {
         p = simulator.getPositions().toMutableList()
         simulator.step()
         v = simulator.getPositions()
-            .zip(p!!)
+            .zip(p)
             .map { (newPos, oldPos) -> ((newPos - oldPos).div(dt, Vector3f())) }
             .toMutableList()
     }
 
-    private var v: MutableList<Vector3f>? = null
-    private var p: MutableList<Vector3f>? = null
+    override var v: List<Vector3f> = simulator.initialVelocities.toList()
+    override var p: List<Vector3f> = simulator.getPositions().toList()
 
     override fun getState(): List<MassPos2> {
         return simulator
@@ -94,38 +112,65 @@ class VerletIntegrator(
 
     override fun handle(event: Event) {
         val dt = event.time - this.time
-        val newPositions = p!!.zip(v!!)
+        val newPositions = p.zip(v)
             .map { (pos, vel) -> pos + vel * dt }
             .toMutableList()
         simulator.setPositions(newPositions)
         this.time = event.time
-        // handle event here
         event.handle(this)
+    }
+}
+
+interface EventFinder {
+    fun findNextEvent(integrator: Integrator): Event?
+}
+
+class MyEventFinder(
+    private val collisionIndexPairs: List<Pair<Int, Int>>
+) : EventFinder {
+
+
+    override fun findNextEvent(integrator: Integrator): Event? {
+        return collisionIndexPairs.mapNotNull { (i, j) ->
+            findTimeOfCollisionH(
+                SphereCollider(
+                    pos = integrator.p[i],
+                    vel = integrator.v[i],
+                    radius = integrator.radii[i]
+                ),
+                SphereCollider(
+                    pos = integrator.p[j],
+                    vel = integrator.v[j],
+                    radius = integrator.radii[j]
+                )
+            )?.let {
+                SphereSphereCollision(
+                    i1 = i,
+                    i2 = j,
+                    time = it + integrator.time
+                )
+            }
+        }.minBy { it.time }
     }
 }
 
 
 class SimulationEngine2(
-    private val integrator: Integrator
+    private val integrator: Integrator,
+    private val eventFinder: EventFinder
 ) {
 
     private fun step() {
-        var i = 0
         val stopTime = integrator.time + integrator.dt // delete
-        integrator.findV()
+        integrator.updateVelocity()
         do {
-            i++
-            val nextEvent = findNextEvent(integrator)
+            val nextEvent = eventFinder.findNextEvent(integrator)
                 ?.takeIf { it.time <= stopTime } // takeIf integrator.time + it.time <= integrator.timestepStop
                 ?: EndTimestep(stopTime) // EndTimestep(integrator.timestepStop)
             integrator.handle(nextEvent)// kan kombineres med ↑
-            println("$i    integrator.time = ${integrator.time}, stopTime = ${stopTime}")
         } while (integrator.time < stopTime) // while integrator.isBetweenTimesteps()
     }
 
-    private fun findNextEvent(integrator: Integrator): Event? {
-        return null
-    }
 
     fun getNextState(): List<MassPos2> {
         step()

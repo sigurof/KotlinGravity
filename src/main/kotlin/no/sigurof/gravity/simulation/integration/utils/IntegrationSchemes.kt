@@ -11,7 +11,7 @@ fun verletStepR(lastPosition: Vector3f, positionBeforeLast: Vector3f, lastAccele
 }
 
 fun deltaPositionVerlet(lastPosition: Vector3f, positionBeforeLast: Vector3f, lastAcceleration: Vector3f, dt: Float): Vector3f {
-    return lastPosition - positionBeforeLast + lastAcceleration * dt * dt
+    return lastPosition - positionBeforeLast + lastAcceleration * (dt * dt)
 }
 
 fun eulerStepR(lastPosition: Vector3f, lastVelocity: Vector3f, lastAcceleration: Vector3f, dt: Float): Vector3f {
@@ -19,7 +19,7 @@ fun eulerStepR(lastPosition: Vector3f, lastVelocity: Vector3f, lastAcceleration:
 }
 
 fun deltaPositionEuler(lastVelocity: Vector3f, lastAcceleration: Vector3f, dt: Float): Vector3f {
-    return lastVelocity * dt + 0.5f * lastAcceleration * dt * dt // 6
+    return lastVelocity * dt + 0.5f * lastAcceleration * (dt * dt) // 6
 }
 
 

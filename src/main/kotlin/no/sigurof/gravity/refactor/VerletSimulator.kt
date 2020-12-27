@@ -25,7 +25,7 @@ class VerletSimulator(
         initialStates.map { it.pos }.toTypedArray(),
         Array(initialStates.size) { Vector3f(0f, 0f, 0f) }
     )
-    private var initialVelocities = initialStates.map { it.vel }.toTypedArray()
+    var initialVelocities = initialStates.map { it.vel }.toTypedArray()
     private var a = Array(initialStates.size) { Vector3f(0f, 0f, 0f) }
     var m = initialStates.map { it.m }.toTypedArray()
     private var newPosIndex = 1
