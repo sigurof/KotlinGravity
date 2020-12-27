@@ -64,7 +64,7 @@ class SimulatorState(
     }
 
     fun setVelocity(velocities: List<Vector3f>) {
-        simulator.setVelocity(velocities)
+        simulator.setVelocities(velocities)
     }
 
     fun setVelocity(id: Int, vel: Vector3f) {

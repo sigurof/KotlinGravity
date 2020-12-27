@@ -137,7 +137,7 @@ class VerletSimulator(
         initialVelocities[id] = vel
     }
 
-    fun setVelocity(velocities: List<Vector3f>) {
+    fun setVelocities(velocities: List<Vector3f>) {
         hasSetVelocity = true
         initialVelocities = velocities.toTypedArray()
     }

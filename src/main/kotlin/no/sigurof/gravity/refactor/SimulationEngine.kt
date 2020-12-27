@@ -30,9 +30,6 @@ class SimulationEngine(
     )
 
     private fun step() {
-        // define a physical situation: m, v, r, forces
-        // define the geometry
-
         val currentPositions = state.getPositions()
         val radii = state.geometries.map { it.radius }
         state.simulatorStep()
@@ -50,7 +47,9 @@ class SimulationEngine(
             if (collision != null) {
                 intermediateTime += collision.t
                 val newPositions =
-                    currentPositions.zip(velocities).map { (pos, vel) -> pos + vel * collision.t }
+                    currentPositions
+                        .zip(velocities)
+                        .map { (pos, vel) -> pos + vel * collision.t }
                 val newVelocities = velocities.toMutableList()
                 val (v1, v2) = Collisions.Elastic.sphereOnSphere(
                     Collisions.Elastic.Particle(
@@ -77,18 +76,9 @@ class SimulationEngine(
                             pos + vel * (dt)
                         }
                 intermediateTime = state.dt
-//                currentPositions.zip(positions)
-//                    .forEach { (p1, p2) ->
-//                        println(p1.min(p2))
-//                    }
                 state.setPositions(positions)
             }
         }
-
-
-        // progress positions by verlet integration
-        // evaluate collisions by geometry
-        // on collision: modify physical situation and geometry (like calculating elastic collision)
     }
 
     private fun findNextCollision(

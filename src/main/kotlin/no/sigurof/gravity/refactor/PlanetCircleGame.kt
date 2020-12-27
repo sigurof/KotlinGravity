@@ -16,17 +16,35 @@ import no.sigurof.gravity.physics.data.MassPosVel
 import no.sigurof.gravity.physics.data.PointMass
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw2
 import no.sigurof.gravity.physics.gravity.newtonian.utils.simulateASolarSystem
+import no.sigurof.gravity.refactor2.MassPos2
+import no.sigurof.gravity.refactor2.SimulationEngine2
+import no.sigurof.gravity.refactor2.SimulationEntity2
+import no.sigurof.gravity.refactor2.VerletIntegrator
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
 import kotlin.math.pow
+
+
+/*
+* Features
+* Clean up code
+* enable static objects
+* enable other object types, like quads, perfect planes, etc.
+* collision handling: colliding objects merge
+* enable angular momentum - collision detection between rotating objects
+* change colors based on velocity
+* test other forces than gravity
+* speedup recalculating of collisions within timestep by only recalculating collisions involving the two outgoing particles from the first collision
+* */
+
 
 class PlanetCircleGame(
     window: Long
 ) : Game(window = window, background = Vector4f(0f, 0f, 0f, 1f)) {
     private var light: PointLight
     private var planetObjs: List<GameObject>
-    private var simulation: SimulationEngine
+    private var simulation: SimulationEngine2
 
     private val camera: Camera
 
@@ -91,23 +109,24 @@ class PlanetCircleGame(
                 .build()
         }
 
-        simulation = SimulationEngine(
-            entities = objects.map {
-                SimulationEntity(
-                    m = it.first.m,
-                    geometry = it.second,
-                    vel = it.first.v,
-                    pos = it.first.r
+        simulation = SimulationEngine2(
+            integrator = VerletIntegrator(
+                entities = objects.map {
+                    SimulationEntity2(
+                        m = it.first.m,
+                        geometry = it.second,
+                        vel = it.first.v,
+                        pos = it.first.r
+                    )
+                },
+                dt = 0.005f,
+                forces = listOf(
+                    NewtonianForceLaw2(
+                        g = 9.81f,
+                        affects = objects.indices.toSet()
+                    )
                 )
-            },
-            dt = 0.005f,
-            forces = listOf(
-                NewtonianForceLaw2(
-                    g = 9.81f,
-                    affects = objects.indices.toSet()
-                )
-            ),
-            stepsPerFrame = 1
+            )
         )
     }
 
@@ -116,7 +135,7 @@ class PlanetCircleGame(
             PointMass(
                 m = 1f,
                 r = Vector3f(2f, 0f, 0f),
-                v = Vector3f(-1f, 0f, 0f)
+                v = Vector3f(-1f, 0f, 1f)
             ),
             PointMass(
                 m = 1f,
@@ -129,7 +148,7 @@ class PlanetCircleGame(
     }
 
     override fun onUpdate() {
-        val objects: List<MassPos> = simulation.getNextState()
+        val objects: List<MassPos2> = simulation.getNextState()
         planetObjs.zip(objects).forEach { obj ->
             val gphxObj = obj.first
             val simObj = obj.second
