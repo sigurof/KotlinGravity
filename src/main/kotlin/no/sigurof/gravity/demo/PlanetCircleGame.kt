@@ -7,6 +7,7 @@ import no.sigurof.grajuny.color.Gradient
 import no.sigurof.grajuny.color.RED
 import no.sigurof.grajuny.color.WHITE
 import no.sigurof.grajuny.components.SphereBillboardRenderer
+import no.sigurof.grajuny.components.TraceRenderer
 import no.sigurof.grajuny.game.Game
 import no.sigurof.grajuny.light.LightManager
 import no.sigurof.grajuny.light.phong.PointLight
@@ -14,7 +15,7 @@ import no.sigurof.grajuny.node.GameObject
 import no.sigurof.grajuny.resource.material.PhongMaterial
 import no.sigurof.grajuny.utils.ORIGIN
 import no.sigurof.gravity.physics.gravity.newtonian.NewtonianForceLaw
-import no.sigurof.gravity.physics.gravity.newtonian.utils.generateCircleOfPlanets
+import no.sigurof.gravity.physics.gravity.newtonian.utils.demoSolarSystemWithMoons2
 import no.sigurof.gravity.physics.gravity.newtonian.utils.newtonianForcePairs
 import no.sigurof.gravity.simulation.Simulation
 import no.sigurof.gravity.simulation.integration.verlet.VerletIntegrator
@@ -59,9 +60,10 @@ class PlanetCircleGame(
         LightManager.LIGHT_SOURCES.add(light)
         val stepsPerFrame = 5
         val numberOfFrames = 5000
-        val dt = 0.05f
+        val dt = 0.005f
         val g = 0.981f
-        val objects = generateCircleOfPlanets(g = g, numberOfPlanetPairs = 11, radius = 3f)
+        val objects = demoSolarSystemWithMoons2()
+//        val objects = generateCircleOfPlanets(g = g, numberOfPlanetPairs = 11, radius = 3f)
 //        val objects = demoRandomGravityNode()
 //        val objects = demoStarWithManySatellites(n = 10)
 //        val objects = demoSolarSystemWithMoons1()
@@ -97,12 +99,12 @@ class PlanetCircleGame(
                 )
             ).at(it.r).build()
         }
-//        planetObjs.forEach {
-//            TraceRenderer.Builder(color = WHITE, numberOfPoints = 2)
-//                .firstPos(it.getPosition())
-//                .attachTo(it)
-//                .build()
-//        }
+        planetObjs.forEach {
+            TraceRenderer.Builder(color = WHITE, numberOfPoints = 200)
+                .firstPos(it.getPosition())
+                .attachTo(it)
+                .build()
+        }
         root.addChild(
             GameObject.withChildren(
                 planetObjs
@@ -110,7 +112,7 @@ class PlanetCircleGame(
         )
         camera = SpaceShipCamera(
             window = window,
-            parent = planetObjs[0],
+            parent = root,
             at = Vector3f(5f, 5f, 5f),
             lookAt = ORIGIN
         )
@@ -134,7 +136,7 @@ class PlanetCircleGame(
 //            ((it.first.components[0] as SphereBillboardRenderer).material as PhongMaterial).color =
 //                evaluate
 //        }
-        light.position.set(planetObjs.last().getPosition())
+//        light.position.set(planetObjs.last().getPosition())
 
     }
 }
